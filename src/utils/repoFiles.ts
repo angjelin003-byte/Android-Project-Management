@@ -403,5 +403,55 @@ fun TeamTimelineScreen(
     language: 'markdown',
     content: `# PlanCraft Android — Enterprise Project, Budget & Calendar Management
 Native Android application with Jetpack Compose (Material 3) and GitHub Actions CI build.yml.`
+  },
+  {
+    path: 'app/src/main/res/drawable/ic_launcher_background.xml',
+    category: 'xml',
+    language: 'xml',
+    content: `<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#4F46E5"
+        android:pathData="M0,0h108v108h-108z" />
+</vector>`
+  },
+  {
+    path: 'app/src/main/res/drawable/ic_launcher_foreground.xml',
+    category: 'xml',
+    language: 'xml',
+    content: `<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path 
+        android:fillColor="#FFFFFF" 
+        android:pathData="M54,24 l30,50 h-60 z" />
+</vector>`
+  },
+  {
+    path: 'app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml',
+    category: 'xml',
+    language: 'xml',
+    content: `<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>`
+  },
+  {
+    path: 'app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml',
+    category: 'xml',
+    language: 'xml',
+    content: `<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>`
   }
 ];
