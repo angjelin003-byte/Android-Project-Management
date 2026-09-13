@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PlanCraft</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_projects">Projects</string>
+    <string name="nav_budget">Economy</string>
+    <string name="nav_team">People</string>
+    <string name="nav_summary">Overview</string>
+</resources>

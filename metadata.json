@@ -1,0 +1,6 @@
+{
+  "name": "PlanCraft Android - Project & Budget Manager",
+  "description": "Android application repository and interactive planner featuring calendar task management, budget and bills tracking, and stakeholder timelines with GitHub Actions build.yml.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
