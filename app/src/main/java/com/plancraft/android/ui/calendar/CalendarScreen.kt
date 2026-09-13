@@ -133,7 +133,7 @@ fun CalendarScreen(
                     val tasksOnDate = tasks.count { it.date == dateKey }
 
                     Column(
-                        horizontalAlignment = Alignment.CenterAlignmentLine(Alignment.CenterVertically),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .width(64.dp)
                             .clip(RoundedCornerShape(12.dp))
