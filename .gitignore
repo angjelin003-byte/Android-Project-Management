@@ -6,3 +6,17 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Gradle & Android
+.gradle/
+app/build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Ensure gradle wrapper jar is tracked
+!gradle/wrapper/gradle-wrapper.jar
+

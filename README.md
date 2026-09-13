@@ -80,11 +80,15 @@ GitHub Actions will automatically run the build and publish the compiled `.apk` 
 
 ### Command-Line Build
 ```bash
+# Ensure Gradle Wrapper JAR is present (in case git skipped binary files)
+mkdir -p gradle/wrapper
+curl -fsSL -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar
+
 # Grant execution permissions
 chmod +x gradlew
 
 # Run unit tests
-./gradlew testDebugUnitTest
+./gradlew testDebugUnitTest --continue
 
 # Build debug APK
 ./gradlew assembleDebug
@@ -92,6 +96,9 @@ chmod +x gradlew
 # Output APK path:
 # app/build/outputs/apk/debug/app-debug.apk
 ```
+
+> **Note on `ClassNotFoundException: org.gradle.wrapper.GradleWrapperMain`:**
+> If you encounter this error, it means `gradle/wrapper/gradle-wrapper.jar` was not tracked or downloaded. The single curl command above downloads the official 63KB jar and fixes it instantly. In GitHub Actions, `.github/workflows/build.yml` now runs this check automatically before compiling.
 
 ---
 
