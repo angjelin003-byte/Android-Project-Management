@@ -6,14 +6,12 @@ export async function downloadAndroidRepoZip(): Promise<void> {
 
   // Add all Android files
   for (const file of REPO_FILES) {
-    zip.file(file.path, file.content);
+    if (file.path === 'gradlew') {
+      zip.file(file.path, file.content, { unixPermissions: '755' });
+    } else {
+      zip.file(file.path, file.content);
+    }
   }
-
-  // Add gradle wrapper script and properties
-  zip.file(
-    'gradle/wrapper/gradle-wrapper.properties',
-    `distributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip\nnetworkTimeout=10000\nvalidateDistributionUrl=true\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists\n`
-  );
 
   // Fetch and bundle the official gradle-wrapper.jar so gradlew works immediately without ClassNotFoundException
   try {
@@ -25,17 +23,6 @@ export async function downloadAndroidRepoZip(): Promise<void> {
   } catch (err) {
     console.warn('Could not bundle remote wrapper jar into zip:', err);
   }
-
-  zip.file(
-    'gradlew',
-    `#!/bin/sh\nexec java -classpath gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain "$@"\n`,
-    { unixPermissions: '755' }
-  );
-
-  zip.file(
-    'gradlew.bat',
-    `@rem Gradle startup script for Windows\r\n@java -classpath "%~dp0gradle\\wrapper\\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain %*\r\n`
-  );
 
   const blob = await zip.generateAsync({ type: 'blob' });
   const url = URL.createObjectURL(blob);

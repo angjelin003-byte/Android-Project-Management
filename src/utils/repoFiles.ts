@@ -78,6 +78,42 @@ jobs:
           retention-days: 14`
   },
   {
+    path: 'gradlew',
+    category: 'gradle',
+    language: 'bash',
+    content: `#!/bin/sh
+if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
+    echo "Downloading gradle-wrapper.jar..."
+    mkdir -p gradle/wrapper
+    curl -fsSL -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar
+fi
+exec java -classpath gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain "$@"`
+  },
+  {
+    path: 'gradlew.bat',
+    category: 'gradle',
+    language: 'bat',
+    content: `@echo off
+if not exist "gradle\\wrapper\\gradle-wrapper.jar" (
+    echo Downloading gradle-wrapper.jar...
+    if not exist "gradle\\wrapper" mkdir "gradle\\wrapper"
+    curl -fsSL -o "gradle\\wrapper\\gradle-wrapper.jar" https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar
+)
+@java -classpath "%~dp0gradle\\wrapper\\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain %*`
+  },
+  {
+    path: 'gradle/wrapper/gradle-wrapper.properties',
+    category: 'gradle',
+    language: 'properties',
+    content: `distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists`
+  },
+  {
     path: 'build.gradle.kts',
     category: 'gradle',
     language: 'kotlin',
