@@ -18,6 +18,7 @@ import com.plancraft.android.ui.theme.SlateSurface
 import com.plancraft.android.ui.theme.SlateSurfaceVariant
 import com.plancraft.android.ui.theme.TextSecondary
 import com.plancraft.android.ui.timeline.TeamTimelineScreen
+import com.plancraft.android.ui.components.GenericEditDialog
 
 enum class AppDestination(val title: String, val icon: ImageVector) {
     CALENDAR("Calendar", Icons.Default.CalendarMonth),
@@ -93,14 +94,17 @@ fun PlanCraftApp() {
                         },
                         onAddTask = { newTask ->
                             tasks = listOf(newTask) + tasks
-                        }
+                        },
+                        onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } }
                     )
                 }
                 AppDestination.PROJECTS -> {
                     ProjectsScreen(
                         projects = projects,
                         tasks = tasks,
-                        onSelectProject = { /* Filter or navigate */ }
+                        onSelectProject = { /* Filter or navigate */ },
+                        onUpdateProject = { updated -> projects = projects.map { if (it.id == updated.id) updated else it } },
+                        onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } }
                     )
                 }
                 AppDestination.ECONOMY -> {
@@ -116,13 +120,18 @@ fun PlanCraftApp() {
                                     bill
                                 }
                             }
-                        }
+                        },
+                        onUpdateBill = { updated -> bills = bills.map { if (it.id == updated.id) updated else it } },
+                        onUpdateIncome = { updated -> incomes = incomes.map { if (it.id == updated.id) updated else it } },
+                        onUpdateExpense = { updated -> expenses = expenses.map { if (it.id == updated.id) updated else it } }
                     )
                 }
                 AppDestination.PEOPLE -> {
                     TeamTimelineScreen(
                         phases = phases,
-                        members = members
+                        members = members,
+                        onUpdatePhase = { updated -> phases = phases.map { if (it.id == updated.id) updated else it } },
+                        onUpdateMember = { updated -> members = members.map { if (it.id == updated.id) updated else it } }
                     )
                 }
             }

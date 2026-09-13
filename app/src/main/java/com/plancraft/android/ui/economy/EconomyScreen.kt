@@ -21,14 +21,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plancraft.android.model.*
 import com.plancraft.android.ui.theme.*
+import com.plancraft.android.ui.components.GenericEditDialog
 
 @Composable
 fun EconomyScreen(
     bills: List<Bill>,
     incomes: List<Income>,
     expenses: List<Expense>,
-    onToggleBillPaid: (String) -> Unit
+    onToggleBillPaid: (String) -> Unit,
+    onUpdateBill: (Bill) -> Unit = {},
+    onUpdateIncome: (Income) -> Unit = {},
+    onUpdateExpense: (Expense) -> Unit = {}
 ) {
+    var editingBill by remember { mutableStateOf<Bill?>(null) }
+    var editingIncome by remember { mutableStateOf<Income?>(null) }
+    var editingExpense by remember { mutableStateOf<Expense?>(null) }
     var selectedTab by remember { mutableStateOf(0) } // 0 = Bills, 1 = Income, 2 = Expenses, 3 = Category Budgets
 
     val totalIncome = incomes.filter { it.status == "Received" }.sumOf { it.amount }
@@ -142,16 +149,61 @@ fun EconomyScreen(
 
         // Tab Content
         when (selectedTab) {
-            0 -> BillsList(bills = bills, onTogglePaid = onToggleBillPaid)
-            1 -> IncomesList(incomes = incomes, pendingTotal = pendingIncome)
-            2 -> ExpensesList(expenses = expenses, totalExpenses = totalExpenses)
+            0 -> BillsList(bills = bills, onTogglePaid = onToggleBillPaid, onEdit = { editingBill = it })
+            1 -> IncomesList(incomes = incomes, pendingTotal = pendingIncome, onEdit = { editingIncome = it })
+            2 -> ExpensesList(expenses = expenses, totalExpenses = totalExpenses, onEdit = { editingExpense = it })
             3 -> CategoryBudgetsView()
         }
+    }
+
+    editingBill?.let { bill ->
+        GenericEditDialog(
+            title = "Bill",
+            fields = mapOf("title" to bill.title, "amount" to bill.amount.toString()),
+            onDismiss = { editingBill = null },
+            onSave = { updated ->
+                onUpdateBill(bill.copy(
+                    title = updated["title"] ?: bill.title,
+                    amount = updated["amount"]?.toDoubleOrNull() ?: bill.amount
+                ))
+                editingBill = null
+            }
+        )
+    }
+
+    editingIncome?.let { inc ->
+        GenericEditDialog(
+            title = "Income",
+            fields = mapOf("title" to inc.title, "amount" to inc.amount.toString()),
+            onDismiss = { editingIncome = null },
+            onSave = { updated ->
+                onUpdateIncome(inc.copy(
+                    title = updated["title"] ?: inc.title,
+                    amount = updated["amount"]?.toDoubleOrNull() ?: inc.amount
+                ))
+                editingIncome = null
+            }
+        )
+    }
+
+    editingExpense?.let { exp ->
+        GenericEditDialog(
+            title = "Expense",
+            fields = mapOf("description" to exp.description, "amount" to exp.amount.toString()),
+            onDismiss = { editingExpense = null },
+            onSave = { updated ->
+                onUpdateExpense(exp.copy(
+                    description = updated["description"] ?: exp.description,
+                    amount = updated["amount"]?.toDoubleOrNull() ?: exp.amount
+                ))
+                editingExpense = null
+            }
+        )
     }
 }
 
 @Composable
-fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit) {
+fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit, onEdit: (Bill) -> Unit = {}) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxSize()
@@ -195,12 +247,18 @@ fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit) {
                             }
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = bill.title,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = bill.title,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            IconButton(onClick = { onEdit(bill) }, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                            }
+                        }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Due: ${bill.dueDate} • ${bill.invoiceNumber ?: "No Ref"}",
@@ -241,7 +299,7 @@ fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit) {
 }
 
 @Composable
-fun IncomesList(incomes: List<Income>, pendingTotal: Double) {
+fun IncomesList(incomes: List<Income>, pendingTotal: Double, onEdit: (Income) -> Unit = {}) {
     Column(modifier = Modifier.fillMaxSize()) {
         Card(
             modifier = Modifier
@@ -315,7 +373,7 @@ fun IncomesList(incomes: List<Income>, pendingTotal: Double) {
 }
 
 @Composable
-fun ExpensesList(expenses: List<Expense>, totalExpenses: Double) {
+fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expense) -> Unit = {}) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxSize()

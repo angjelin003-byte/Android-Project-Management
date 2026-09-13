@@ -22,14 +22,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plancraft.android.model.*
 import com.plancraft.android.ui.theme.*
+import com.plancraft.android.ui.components.GenericEditDialog
 
 @Composable
 fun CalendarScreen(
     tasks: List<Task>,
     projects: List<Project>,
     onToggleTaskStatus: (String) -> Unit,
-    onAddTask: (Task) -> Unit
+    onAddTask: (Task) -> Unit,
+    onUpdateTask: (Task) -> Unit = {}
 ) {
+    var editingTask by remember { mutableStateOf<Task?>(null) }
     var selectedDate by remember { mutableStateOf("2026-09-14") }
     var selectedProjectFilter by remember { mutableStateOf<String?>("All") }
     var showAddTaskDialog by remember { mutableStateOf(false) }
@@ -263,6 +266,22 @@ fun CalendarScreen(
         }
     }
 
+    editingTask?.let { task ->
+        GenericEditDialog(
+            title = "Task",
+            fields = mapOf("title" to task.title, "hours" to task.durationHours.toString(), "cost" to task.costImpact.toString()),
+            onDismiss = { editingTask = null },
+            onSave = { updated ->
+                onUpdateTask(task.copy(
+                    title = updated["title"] ?: task.title,
+                    durationHours = updated["hours"]?.toDoubleOrNull() ?: task.durationHours,
+                    costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact
+                ))
+                editingTask = null
+            }
+        )
+    }
+
     if (showAddTaskDialog) {
         AddTaskDialog(
             selectedDate = selectedDate,
@@ -279,7 +298,8 @@ fun CalendarScreen(
 @Composable
 fun TaskCard(
     task: Task,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
+    onEdit: () -> Unit = {}
 ) {
     val isDone = task.status == TaskStatus.DONE
     val priorityColor = when (task.priority) {
@@ -316,6 +336,10 @@ fun TaskCard(
                         fontWeight = FontWeight.SemiBold,
                         color = IndigoSecondary
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                    }
                 }
 
                 Surface(

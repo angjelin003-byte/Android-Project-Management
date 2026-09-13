@@ -22,13 +22,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plancraft.android.model.*
 import com.plancraft.android.ui.theme.*
+import com.plancraft.android.ui.components.GenericEditDialog
 
 @Composable
 fun ProjectsScreen(
     projects: List<Project>,
     tasks: List<Task>,
-    onSelectProject: (String) -> Unit
+    onSelectProject: (String) -> Unit,
+    onUpdateProject: (Project) -> Unit = {},
+    onUpdateTask: (Task) -> Unit = {}
 ) {
+    var editingProject by remember { mutableStateOf<Project?>(null) }
+    var editingTask by remember { mutableStateOf<Task?>(null) }
     var selectedTab by remember { mutableStateOf(0) } // 0 = Project Portfolios, 1 = Kanban Board
 
     Column(
@@ -121,22 +126,18 @@ fun ProjectsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.Top
                             ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = project.client.uppercase(),
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = CyanAccent,
-                                        letterSpacing = 1.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = project.name,
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
                                     )
+                                    IconButton(onClick = { editingProject = project }, modifier = Modifier.size(24.dp)) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                    }
                                 }
+                            }
 
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
@@ -251,13 +252,41 @@ fun ProjectsScreen(
             }
         } else {
             // Kanban View across Status Columns
-            KanbanView(tasks = tasks)
+            KanbanView(tasks = tasks, onEditTask = { editingTask = it })
         }
+    }
+
+    editingProject?.let { proj ->
+        GenericEditDialog(
+            title = "Project",
+            fields = mapOf("name" to proj.name, "client" to proj.client, "budget" to proj.totalBudget.toString()),
+            onDismiss = { editingProject = null },
+            onSave = { updated ->
+                onUpdateProject(proj.copy(
+                    name = updated["name"] ?: proj.name,
+                    client = updated["client"] ?: proj.client,
+                    totalBudget = updated["budget"]?.toDoubleOrNull() ?: proj.totalBudget
+                ))
+                editingProject = null
+            }
+        )
+    }
+
+    editingTask?.let { task ->
+        GenericEditDialog(
+            title = "Task",
+            fields = mapOf("title" to task.title),
+            onDismiss = { editingTask = null },
+            onSave = { updated ->
+                onUpdateTask(task.copy(title = updated["title"] ?: task.title))
+                editingTask = null
+            }
+        )
     }
 }
 
 @Composable
-fun KanbanView(tasks: List<Task>) {
+fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
     val columns = listOf(
         TaskStatus.TODO to "To Do",
         TaskStatus.IN_PROGRESS to "In Progress",
@@ -323,12 +352,18 @@ fun KanbanView(tasks: List<Task>) {
                                 .border(1.dp, SlateBorder, RoundedCornerShape(8.dp))
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
-                                Text(
-                                    text = task.title,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(
+                                        text = task.title,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color.White,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { onEditTask(task) }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(12.dp))
+                                    }
+                                }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = task.projectName,

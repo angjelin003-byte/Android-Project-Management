@@ -385,6 +385,18 @@ export default function App() {
     }));
   };
 
+  const handleUpdateItem = (type: string, updatedItem: any) => {
+    switch(type) {
+      case 'task': setTasks(prev => prev.map(t => t.id === updatedItem.id ? updatedItem : t)); break;
+      case 'project': setProjects(prev => prev.map(p => p.id === updatedItem.id ? updatedItem : p)); break;
+      case 'bill': setBills(prev => prev.map(b => b.id === updatedItem.id ? updatedItem : b)); break;
+      case 'income': setIncomes(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i)); break;
+      case 'expense': setExpenses(prev => prev.map(e => e.id === updatedItem.id ? updatedItem : e)); break;
+      case 'phase': setPhases(prev => prev.map(p => p.id === updatedItem.id ? updatedItem : p)); break;
+      case 'member': setMembers(prev => prev.map(m => m.id === updatedItem.id ? updatedItem : m)); break;
+    }
+  };
+
   const handleAddTask = (newTask: Task) => {
     setTasks(prev => [newTask, ...prev]);
     confetti({
@@ -539,6 +551,7 @@ export default function App() {
               onToggleTask={handleToggleTask}
               onToggleBill={handleToggleBill}
               onAddTask={handleAddTask}
+              onUpdateItem={handleUpdateItem}
             />
           </div>
         )}

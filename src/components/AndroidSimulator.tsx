@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { 
+  Edit2,
   Calendar as CalendarIcon, 
   FolderKanban, 
   Wallet, 
@@ -31,6 +32,7 @@ interface AndroidSimulatorProps {
   onToggleTask: (id: string) => void;
   onToggleBill: (id: string) => void;
   onAddTask: (task: Task) => void;
+  onUpdateItem: (type: string, item: any) => void;
 }
 
 export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
@@ -43,8 +45,10 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
   members,
   onToggleTask,
   onToggleBill,
-  onAddTask
+  onAddTask,
+  onUpdateItem
 }) => {
+  const [editingItem, setEditingItem] = useState<{type: string, item: any, fields: any[]} | null>(null);
   const [currentTab, setCurrentTab] = useState<'calendar' | 'projects' | 'economy' | 'people'>('calendar');
   const [selectedDate, setSelectedDate] = useState('2026-09-14');
   const [selectedProjectFilter, setSelectedProjectFilter] = useState('All');
@@ -283,9 +287,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                             )}
                           </button>
                           <div className="flex-1">
-                            <h4 className={`text-sm font-semibold text-slate-100 ${isDone ? 'line-through text-slate-500' : ''}`}>
-                              {task.title}
-                            </h4>
+                        <h4 
+                          onClick={() => setEditingItem({ type: 'task', item: task, fields: [{key:'title', label:'Title', type:'text'}, {key:'durationHours', label:'Hours', type:'number'}, {key:'costImpact', label:'Cost', type:'number'}] })}
+                          className={`text-sm font-semibold text-slate-100 cursor-pointer hover:text-indigo-400 transition-colors ${isDone ? 'line-through text-slate-500' : ''}`}
+                        >
+                          {task.title} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h4>
                             <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
                               {task.description}
                             </p>
@@ -357,7 +364,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                         <div className="flex items-start justify-between">
                           <div>
                             <span className="text-[10px] font-bold tracking-wider uppercase text-cyan-400">{p.client}</span>
-                            <h3 className="text-sm font-bold text-white mt-0.5">{p.name}</h3>
+                        <h3 
+                          onClick={() => setEditingItem({ type: 'project', item: p, fields: [{key:'name', label:'Name', type:'text'}, {key:'totalBudget', label:'Budget', type:'number'}] })}
+                          className="text-sm font-bold text-white mt-0.5 cursor-pointer hover:text-indigo-400 transition-colors"
+                        >
+                          {p.name} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h3>
                           </div>
                           <span className="text-[10px] px-2 py-0.5 rounded-md font-semibold bg-indigo-950 text-indigo-300 border border-indigo-800/50">
                             {p.status}
@@ -504,7 +516,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                             </span>
                           )}
                         </div>
-                        <h4 className="text-xs font-bold text-white">{bill.title}</h4>
+                        <h4 
+                          onClick={() => setEditingItem({ type: 'bill', item: bill, fields: [{key:'title', label:'Title', type:'text'}, {key:'amount', label:'Amount', type:'number'}] })}
+                          className="text-xs font-bold text-white cursor-pointer hover:text-indigo-400 transition-colors"
+                        >
+                          {bill.title} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h4>
                         <p className="text-[10px] text-slate-400">Due: {bill.dueDate} • {bill.invoiceNumber}</p>
                       </div>
 
@@ -543,7 +560,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                     >
                       <div className="space-y-0.5 flex-1">
                         <span className="text-[10px] font-bold text-indigo-400">{inc.projectName}</span>
-                        <h4 className="text-xs font-bold text-white">{inc.title}</h4>
+                        <h4 
+                          onClick={() => setEditingItem({ type: 'income', item: inc, fields: [{key:'title', label:'Title', type:'text'}, {key:'amount', label:'Amount', type:'number'}] })}
+                          className="text-xs font-bold text-white cursor-pointer hover:text-indigo-400 transition-colors"
+                        >
+                          {inc.title} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h4>
                         <p className="text-[10px] text-slate-400">{inc.source.replace('_', ' ')} • {inc.date}</p>
                       </div>
                       <div className="text-right space-y-1">
@@ -573,7 +595,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                     >
                       <div className="space-y-0.5 flex-1 pr-2">
                         <span className="text-[10px] font-semibold text-cyan-400">{exp.category.replace(/_/g, ' ')}</span>
-                        <h4 className="text-xs font-semibold text-slate-100">{exp.description}</h4>
+                        <h4 
+                          onClick={() => setEditingItem({ type: 'expense', item: exp, fields: [{key:'description', label:'Description', type:'text'}, {key:'amount', label:'Amount', type:'number'}] })}
+                          className="text-xs font-semibold text-slate-100 cursor-pointer hover:text-indigo-400 transition-colors"
+                        >
+                          {exp.description} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h4>
                         <p className="text-[10px] text-slate-400">{exp.loggedBy} via {exp.paymentMethod} • {exp.date}</p>
                       </div>
                       <span className="text-sm font-bold text-rose-400 whitespace-nowrap">
@@ -664,7 +691,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                       </div>
 
                       <div>
-                        <h3 className="text-sm font-bold text-white">{phase.phaseName}</h3>
+                        <h3 
+                          onClick={() => setEditingItem({ type: 'phase', item: phase, fields: [{key:'phaseName', label:'Name', type:'text'}, {key:'estimatedBudget', label:'Budget', type:'number'}] })}
+                          className="text-sm font-bold text-white cursor-pointer hover:text-indigo-400 transition-colors"
+                        >
+                          {phase.phaseName} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h3>
                         <p className="text-[11px] text-slate-400 mt-0.5">{phase.startDate} → {phase.endDate}</p>
                       </div>
 
@@ -709,7 +741,12 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                         {member.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-bold text-white truncate">{member.name}</h4>
+                        <h4 
+                          onClick={() => setEditingItem({ type: 'member', item: member, fields: [{key:'name', label:'Name', type:'text'}, {key:'role', label:'Role', type:'text'}, {key:'hourlyRate', label:'Rate', type:'number'}] })}
+                          className="text-xs font-bold text-white truncate cursor-pointer hover:text-indigo-400 transition-colors"
+                        >
+                          {member.name} <Edit2 className="w-3 h-3 inline ml-1 opacity-50" />
+                        </h4>
                         <p className="text-[11px] text-slate-400 truncate">{member.role}</p>
                         <p className="text-[10px] text-indigo-400 mt-0.5">{member.activePeriod} • {member.group.replace(/_/g, ' ')}</p>
                       </div>
@@ -878,6 +915,42 @@ export const AndroidSimulator: React.FC<AndroidSimulatorProps> = ({
                   >
                     Add to Calendar
                   </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Generic Edit Modal */}
+        {editingItem && (
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[60] animate-fade-in">
+            <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-white capitalize">Edit {editingItem.type}</h3>
+                <button onClick={() => setEditingItem(null)} className="text-slate-400 hover:text-white text-sm">✕</button>
+              </div>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                onUpdateItem(editingItem.type, editingItem.item);
+                setEditingItem(null);
+              }} className="space-y-3">
+                {editingItem.fields.map(f => (
+                  <div key={f.key}>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">{f.label}</label>
+                    <input
+                      type={f.type === 'number' ? 'number' : 'text'}
+                      value={editingItem.item[f.key] || ''}
+                      onChange={e => setEditingItem({
+                        ...editingItem,
+                        item: { ...editingItem.item, [f.key]: f.type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value }
+                      })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                ))}
+                <div className="flex space-x-2 pt-2">
+                  <button type="button" onClick={() => setEditingItem(null)} className="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">Cancel</button>
+                  <button type="submit" className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg">Save Changes</button>
                 </div>
               </form>
             </div>

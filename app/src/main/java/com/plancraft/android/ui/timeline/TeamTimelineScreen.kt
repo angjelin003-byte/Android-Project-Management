@@ -21,12 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plancraft.android.model.*
 import com.plancraft.android.ui.theme.*
+import com.plancraft.android.ui.components.GenericEditDialog
 
 @Composable
 fun TeamTimelineScreen(
     phases: List<ProjectTimelinePhase>,
-    members: List<TeamMember>
+    members: List<TeamMember>,
+    onUpdatePhase: (ProjectTimelinePhase) -> Unit = {},
+    onUpdateMember: (TeamMember) -> Unit = {}
 ) {
+    var editingPhase by remember { mutableStateOf<ProjectTimelinePhase?>(null) }
+    var editingMember by remember { mutableStateOf<TeamMember?>(null) }
     var selectedGroupFilter by remember { mutableStateOf<StakeholderGroupType?>(null) }
     var viewMode by remember { mutableStateOf(0) } // 0 = Phases Over Time, 1 = People & Groups
 
@@ -135,12 +140,18 @@ fun TeamTimelineScreen(
                             }
 
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = phase.phaseName,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = phase.phaseName,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                IconButton(onClick = { editingPhase = phase }, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                }
+                            }
 
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
@@ -261,12 +272,18 @@ fun TeamTimelineScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
 
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = member.name,
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
+                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = member.name,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        IconButton(onClick = { editingMember = member }, modifier = Modifier.size(24.dp)) {
+                                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                                        }
+                                    }
                                     Text(
                                         text = member.role,
                                         fontSize = 13.sp,
@@ -308,6 +325,37 @@ fun TeamTimelineScreen(
                 }
             }
         }
+    }
+
+    editingPhase?.let { phase ->
+        GenericEditDialog(
+            title = "Phase",
+            fields = mapOf("name" to phase.phaseName, "budget" to phase.estimatedBudget.toString()),
+            onDismiss = { editingPhase = null },
+            onSave = { updated ->
+                onUpdatePhase(phase.copy(
+                    phaseName = updated["name"] ?: phase.phaseName,
+                    estimatedBudget = updated["budget"]?.toDoubleOrNull() ?: phase.estimatedBudget
+                ))
+                editingPhase = null
+            }
+        )
+    }
+
+    editingMember?.let { member ->
+        GenericEditDialog(
+            title = "Team Member",
+            fields = mapOf("name" to member.name, "role" to member.role, "rate" to member.hourlyRate.toString()),
+            onDismiss = { editingMember = null },
+            onSave = { updated ->
+                onUpdateMember(member.copy(
+                    name = updated["name"] ?: member.name,
+                    role = updated["role"] ?: member.role,
+                    hourlyRate = updated["rate"]?.toDoubleOrNull() ?: member.hourlyRate
+                ))
+                editingMember = null
+            }
+        )
     }
 }
 
