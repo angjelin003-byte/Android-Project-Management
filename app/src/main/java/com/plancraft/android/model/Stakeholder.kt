@@ -11,24 +11,24 @@ enum class StakeholderGroupType {
 }
 
 data class TeamMember(
-    val id: String,
-    val name: String,
-    val role: String,
-    val email: String,
-    val group: StakeholderGroupType,
-    val hourlyRate: Double,
-    val allocationPercentage: Int,
-    val activePeriod: String
+    val id: String = "",
+    val name: String = "",
+    val role: String = "",
+    val email: String = "",
+    val group: StakeholderGroupType = StakeholderGroupType.CORE_ENGINEERING,
+    val hourlyRate: Double = 0.0,
+    val allocationPercentage: Int = 0,
+    val activePeriod: String = ""
 )
 
 data class ProjectTimelinePhase(
-    val id: String,
-    val phaseName: String,
-    val quarter: String,
-    val startDate: String,
-    val endDate: String,
-    val progress: Int,
-    val involvedGroups: List<StakeholderGroupType>,
-    val headCount: Int,
-    val estimatedBudget: Double
+    val id: String = "",
+    val phaseName: String = "",
+    val quarter: String = "",
+    val startDate: String = "",
+    val endDate: String = "",
+    val progress: Int = 0,
+    val involvedGroups: List<StakeholderGroupType> = emptyList(),
+    val headCount: Int = 0,
+    val estimatedBudget: Double = 0.0
 )

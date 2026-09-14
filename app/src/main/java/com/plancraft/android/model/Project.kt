@@ -15,17 +15,17 @@ enum class ProjectPriority {
 }
 
 data class Project(
-    val id: String,
-    val name: String,
-    val client: String,
-    val description: String,
-    val status: ProjectStatus,
-    val priority: ProjectPriority,
-    val startDate: String,
-    val targetEndDate: String,
-    val totalBudget: Double,
-    val totalSpent: Double,
-    val leadManager: String,
-    val completionPercentage: Int,
+    val id: String = "",
+    val name: String = "",
+    val client: String = "",
+    val description: String = "",
+    val status: ProjectStatus = ProjectStatus.PLANNING,
+    val priority: ProjectPriority = ProjectPriority.MEDIUM,
+    val startDate: String = "",
+    val targetEndDate: String = "",
+    val totalBudget: Double = 0.0,
+    val totalSpent: Double = 0.0,
+    val leadManager: String = "",
+    val completionPercentage: Int = 0,
     val tags: List<String> = emptyList()
 )

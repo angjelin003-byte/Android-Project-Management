@@ -19,39 +19,39 @@ enum class IncomeSource {
 }
 
 data class Bill(
-    val id: String,
-    val title: String,
-    val vendor: String,
-    val amount: Double,
-    val dueDate: String,
-    val isPaid: Boolean,
-    val category: ExpenseCategory,
-    val recurringPeriod: String? = null, // "Monthly", "Quarterly", "Annual", null
+    val id: String = "",
+    val title: String = "",
+    val vendor: String = "",
+    val amount: Double = 0.0,
+    val dueDate: String = "",
+    val isPaid: Boolean = false,
+    val category: ExpenseCategory = ExpenseCategory.MISCELLANEOUS,
+    val recurringPeriod: String? = null,
     val invoiceNumber: String? = null
 )
 
 data class Income(
-    val id: String,
-    val projectId: String,
-    val projectName: String,
-    val source: IncomeSource,
-    val title: String,
-    val amount: Double,
-    val date: String,
-    val status: String, // "Received", "Pending", "Overdue"
-    val referenceCode: String
+    val id: String = "",
+    val projectId: String = "",
+    val projectName: String = "",
+    val source: IncomeSource = IncomeSource.CONSULTING_SERVICES,
+    val title: String = "",
+    val amount: Double = 0.0,
+    val date: String = "",
+    val status: String = "Pending",
+    val referenceCode: String = ""
 )
 
 data class Expense(
-    val id: String,
-    val projectId: String,
-    val projectName: String,
-    val category: ExpenseCategory,
-    val description: String,
-    val amount: Double,
-    val date: String,
-    val loggedBy: String,
-    val paymentMethod: String // "Corporate Card", "Wire Transfer", "ACH", "Reimbursement"
+    val id: String = "",
+    val projectId: String = "",
+    val projectName: String = "",
+    val category: ExpenseCategory = ExpenseCategory.MISCELLANEOUS,
+    val description: String = "",
+    val amount: Double = 0.0,
+    val date: String = "",
+    val loggedBy: String = "",
+    val paymentMethod: String = "Corporate Card"
 )
 
 data class BudgetAllocation(
