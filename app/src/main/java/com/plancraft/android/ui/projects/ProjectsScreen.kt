@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plancraft.android.model.Project
+import com.plancraft.android.model.ProjectPriority
 import com.plancraft.android.model.ProjectStatus
 import com.plancraft.android.model.Task
 import com.plancraft.android.model.TaskPriority
