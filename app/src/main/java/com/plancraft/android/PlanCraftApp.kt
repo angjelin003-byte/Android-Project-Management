@@ -14,18 +14,11 @@ import com.plancraft.android.model.*
 import com.plancraft.android.ui.calendar.CalendarScreen
 import com.plancraft.android.ui.economy.EconomyScreen
 import com.plancraft.android.ui.projects.ProjectsScreen
-import com.plancraft.android.ui.theme.IndigoPrimary
-import com.plancraft.android.ui.theme.IndigoSecondary
-import com.plancraft.android.ui.theme.SlateSurface
-import com.plancraft.android.ui.theme.SlateSurfaceVariant
-import com.plancraft.android.ui.theme.TextSecondary
+import com.plancraft.android.ui.theme.*
 import com.plancraft.android.ui.timeline.TeamTimelineScreen
 import com.plancraft.android.ui.components.GenericEditDialog
-
 import com.plancraft.android.ui.settings.SettingsScreen
 import com.plancraft.android.ui.user.UserScreen
-import com.plancraft.android.model.User
-import com.plancraft.android.model.UserRole
 
 enum class AppDestination(val title: String, val icon: ImageVector) {
     CALENDAR("Calendar", Icons.Default.CalendarMonth),

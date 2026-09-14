@@ -61,4 +61,13 @@ class ExampleUnitTest {
         assertEquals(45, phase.progress)
         assertTrue(phase.involvedGroups.isEmpty())
     }
+
+    @Test
+    fun task_initialization_isCorrect() {
+        val task = Task(title = "Fix UI", description = "Minor bug", durationHours = 5.0)
+        assertEquals("Fix UI", task.title)
+        assertEquals(5.0, task.durationHours, 0.1)
+        assertEquals(TaskStatus.TODO, task.status)
+        assertTrue(task.isBillable)
+    }
 }
