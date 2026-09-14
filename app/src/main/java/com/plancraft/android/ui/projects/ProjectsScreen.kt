@@ -163,7 +163,6 @@ fun ProjectsScreen(
                                         Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
                                     }
                                 }
-                            }
 
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
