@@ -443,4 +443,13 @@ object SampleData {
             estimatedBudget = 130000.0
         )
     )
+
+    val sampleBudgetAllocations = listOf(
+        BudgetAllocation(ExpenseCategory.INFRASTRUCTURE_CLOUD, 45000.0, 31200.0),
+        BudgetAllocation(ExpenseCategory.SALARIES_CONTRACTORS, 120000.0, 84000.0),
+        BudgetAllocation(ExpenseCategory.LICENSES_SOFTWARE, 18000.0, 12400.0),
+        BudgetAllocation(ExpenseCategory.HARDWARE_EQUIPMENT, 25000.0, 19200.0),
+        BudgetAllocation(ExpenseCategory.LEGAL_COMPLIANCE, 35000.0, 18500.0),
+        BudgetAllocation(ExpenseCategory.MARKETING_OUTREACH, 15000.0, 6800.0)
+    )
 }

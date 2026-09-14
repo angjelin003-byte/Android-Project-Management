@@ -269,13 +269,27 @@ fun CalendarScreen(
     editingTask?.let { task ->
         GenericEditDialog(
             title = "Task",
-            fields = mapOf("title" to task.title, "hours" to task.durationHours.toString(), "cost" to task.costImpact.toString()),
+            fields = mapOf(
+                "title" to task.title, 
+                "description" to task.description,
+                "assignee" to task.assigneeName,
+                "date" to task.date,
+                "time" to (task.time ?: ""),
+                "hours" to task.durationHours.toString(),
+                "cost" to task.costImpact.toString(),
+                "milestone" to (task.milestone ?: "")
+            ),
             onDismiss = { editingTask = null },
             onSave = { updated ->
                 onUpdateTask(task.copy(
                     title = updated["title"] ?: task.title,
+                    description = updated["description"] ?: task.description,
+                    assigneeName = updated["assignee"] ?: task.assigneeName,
+                    date = updated["date"] ?: task.date,
+                    time = updated["time"]?.ifBlank { null },
                     durationHours = updated["hours"]?.toDoubleOrNull() ?: task.durationHours,
-                    costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact
+                    costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact,
+                    milestone = updated["milestone"]?.ifBlank { null }
                 ))
                 editingTask = null
             }
@@ -458,6 +472,27 @@ fun AddTaskDialog(
                     label = { Text("Task Title") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                
+                // Simple Project Selector
+                Text("Select Project:", color = TextSecondary, fontSize = 12.sp)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(projects) { proj ->
+                        val isSelected = selectedProject == proj.id
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isSelected) IndigoPrimary else SlateSurfaceVariant,
+                            modifier = Modifier.clickable { selectedProject = proj.id }
+                        ) {
+                            Text(
+                                proj.name.take(15), 
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                color = Color.White,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },

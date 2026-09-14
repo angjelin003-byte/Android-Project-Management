@@ -40,6 +40,7 @@ fun PlanCraftApp() {
     var expenses by remember { mutableStateOf(SampleData.sampleExpenses) }
     var phases by remember { mutableStateOf(SampleData.sampleTimelinePhases) }
     var members by remember { mutableStateOf(SampleData.sampleTeamMembers) }
+    var budgetAllocations by remember { mutableStateOf(SampleData.sampleBudgetAllocations) }
 
     Scaffold(
         bottomBar = {
@@ -114,6 +115,7 @@ fun PlanCraftApp() {
                         bills = bills,
                         incomes = incomes,
                         expenses = expenses,
+                        budgetAllocations = budgetAllocations,
                         onToggleBillPaid = { billId ->
                             bills = bills.map { bill ->
                                 if (bill.id == billId) {
@@ -126,6 +128,11 @@ fun PlanCraftApp() {
                         onUpdateBill = { updated -> bills = bills.map { if (it.id == updated.id) updated else it } },
                         onUpdateIncome = { updated -> incomes = incomes.map { if (it.id == updated.id) updated else it } },
                         onUpdateExpense = { updated -> expenses = expenses.map { if (it.id == updated.id) updated else it } },
+                        onUpdateBudgetAllocation = { updated -> 
+                            budgetAllocations = budgetAllocations.map { 
+                                if (it.category == updated.category) updated else it 
+                            } 
+                        },
                         onAddBill = { newBill -> bills = listOf(newBill) + bills },
                         onAddIncome = { newIncome -> incomes = listOf(newIncome) + incomes },
                         onAddExpense = { newExpense -> expenses = listOf(newExpense) + expenses }

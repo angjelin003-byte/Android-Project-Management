@@ -28,10 +28,12 @@ fun EconomyScreen(
     bills: List<Bill>,
     incomes: List<Income>,
     expenses: List<Expense>,
+    budgetAllocations: List<BudgetAllocation> = emptyList(),
     onToggleBillPaid: (String) -> Unit,
     onUpdateBill: (Bill) -> Unit = {},
     onUpdateIncome: (Income) -> Unit = {},
     onUpdateExpense: (Expense) -> Unit = {},
+    onUpdateBudgetAllocation: (BudgetAllocation) -> Unit = {},
     onAddBill: (Bill) -> Unit = {},
     onAddIncome: (Income) -> Unit = {},
     onAddExpense: (Expense) -> Unit = {}
@@ -39,6 +41,7 @@ fun EconomyScreen(
     var editingBill by remember { mutableStateOf<Bill?>(null) }
     var editingIncome by remember { mutableStateOf<Income?>(null) }
     var editingExpense by remember { mutableStateOf<Expense?>(null) }
+    var editingBudgetAllocation by remember { mutableStateOf<BudgetAllocation?>(null) }
     var showAddBill by remember { mutableStateOf(false) }
     var showAddIncome by remember { mutableStateOf(false) }
     var showAddExpense by remember { mutableStateOf(false) }
@@ -178,20 +181,46 @@ fun EconomyScreen(
             0 -> BillsList(bills = bills, onTogglePaid = onToggleBillPaid, onEdit = { editingBill = it })
             1 -> IncomesList(incomes = incomes, pendingTotal = pendingIncome, onEdit = { editingIncome = it })
             2 -> ExpensesList(expenses = expenses, totalExpenses = totalExpenses, onEdit = { editingExpense = it })
-            3 -> CategoryBudgetsView()
+            3 -> CategoryBudgetsView(allocations = budgetAllocations, onEdit = { editingBudgetAllocation = it })
         }
     }
+    }
+
+    editingBudgetAllocation?.let { alloc ->
+        GenericEditDialog(
+            title = "Budget Allocation",
+            fields = mapOf("allocated" to alloc.allocatedAmount.toString(), "spent" to alloc.spentAmount.toString()),
+            onDismiss = { editingBudgetAllocation = null },
+            onSave = { updated ->
+                onUpdateBudgetAllocation(alloc.copy(
+                    allocatedAmount = updated["allocated"]?.toDoubleOrNull() ?: alloc.allocatedAmount,
+                    spentAmount = updated["spent"]?.toDoubleOrNull() ?: alloc.spentAmount
+                ))
+                editingBudgetAllocation = null
+            }
+        )
     }
 
     editingBill?.let { bill ->
         GenericEditDialog(
             title = "Bill",
-            fields = mapOf("title" to bill.title, "amount" to bill.amount.toString()),
+            fields = mapOf(
+                "title" to bill.title, 
+                "vendor" to bill.vendor,
+                "amount" to bill.amount.toString(),
+                "dueDate" to bill.dueDate,
+                "recurring" to (bill.recurringPeriod ?: ""),
+                "invoice" to (bill.invoiceNumber ?: "")
+            ),
             onDismiss = { editingBill = null },
             onSave = { updated ->
                 onUpdateBill(bill.copy(
                     title = updated["title"] ?: bill.title,
-                    amount = updated["amount"]?.toDoubleOrNull() ?: bill.amount
+                    vendor = updated["vendor"] ?: bill.vendor,
+                    amount = updated["amount"]?.toDoubleOrNull() ?: bill.amount,
+                    dueDate = updated["dueDate"] ?: bill.dueDate,
+                    recurringPeriod = updated["recurring"]?.ifBlank { null },
+                    invoiceNumber = updated["invoice"]?.ifBlank { null }
                 ))
                 editingBill = null
             }
@@ -201,12 +230,23 @@ fun EconomyScreen(
     editingIncome?.let { inc ->
         GenericEditDialog(
             title = "Income",
-            fields = mapOf("title" to inc.title, "amount" to inc.amount.toString()),
+            fields = mapOf(
+                "title" to inc.title, 
+                "project" to inc.projectName,
+                "amount" to inc.amount.toString(),
+                "date" to inc.date,
+                "status" to inc.status,
+                "reference" to inc.referenceCode
+            ),
             onDismiss = { editingIncome = null },
             onSave = { updated ->
                 onUpdateIncome(inc.copy(
                     title = updated["title"] ?: inc.title,
-                    amount = updated["amount"]?.toDoubleOrNull() ?: inc.amount
+                    projectName = updated["project"] ?: inc.projectName,
+                    amount = updated["amount"]?.toDoubleOrNull() ?: inc.amount,
+                    date = updated["date"] ?: inc.date,
+                    status = updated["status"] ?: inc.status,
+                    referenceCode = updated["reference"] ?: inc.referenceCode
                 ))
                 editingIncome = null
             }
@@ -216,12 +256,23 @@ fun EconomyScreen(
     editingExpense?.let { exp ->
         GenericEditDialog(
             title = "Expense",
-            fields = mapOf("description" to exp.description, "amount" to exp.amount.toString()),
+            fields = mapOf(
+                "description" to exp.description, 
+                "project" to exp.projectName,
+                "amount" to exp.amount.toString(),
+                "date" to exp.date,
+                "loggedBy" to exp.loggedBy,
+                "paymentMethod" to exp.paymentMethod
+            ),
             onDismiss = { editingExpense = null },
             onSave = { updated ->
                 onUpdateExpense(exp.copy(
                     description = updated["description"] ?: exp.description,
-                    amount = updated["amount"]?.toDoubleOrNull() ?: exp.amount
+                    projectName = updated["project"] ?: exp.projectName,
+                    amount = updated["amount"]?.toDoubleOrNull() ?: exp.amount,
+                    date = updated["date"] ?: exp.date,
+                    loggedBy = updated["loggedBy"] ?: exp.loggedBy,
+                    paymentMethod = updated["paymentMethod"] ?: exp.paymentMethod
                 ))
                 editingExpense = null
             }
@@ -521,22 +572,16 @@ fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expens
 }
 
 @Composable
-fun CategoryBudgetsView() {
-    val categories = listOf(
-        Triple("Infrastructure & Cloud", 45000.0, 31200.0),
-        Triple("Contractor & Engineering Payroll", 120000.0, 84000.0),
-        Triple("Software Licenses & Tooling", 18000.0, 12400.0),
-        Triple("Hardware & Test Equipment", 25000.0, 19200.0),
-        Triple("Legal, Compliance & Audits", 35000.0, 18500.0),
-        Triple("Marketing & Client Demos", 15000.0, 6800.0)
-    )
-
+fun CategoryBudgetsView(allocations: List<BudgetAllocation>, onEdit: (BudgetAllocation) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(categories) { (name, budget, spent) ->
-            val pct = ((spent / budget) * 100).toInt()
+        items(allocations) { alloc ->
+            val name = alloc.category.name.replace("_", " & ")
+            val budget = alloc.allocatedAmount
+            val spent = alloc.spentAmount
+            val pct = if (budget > 0) ((spent / budget) * 100).toInt() else 0
             Card(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = SlateCard),
@@ -547,14 +592,20 @@ fun CategoryBudgetsView() {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = name, fontWeight = FontWeight.SemiBold, color = Color.White, fontSize = 14.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = name, fontWeight = FontWeight.SemiBold, color = Color.White, fontSize = 14.sp)
+                            IconButton(onClick = { onEdit(alloc) }, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                            }
+                        }
                         Text(text = "$pct%", fontWeight = FontWeight.Bold, color = if (pct > 80) AmberWarning else EmeraldSuccess, fontSize = 14.sp)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     LinearProgressIndicator(
-                        progress = (spent / budget).toFloat(),
+                        progress = if (budget > 0) (spent / budget).toFloat() else 0f,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(6.dp)

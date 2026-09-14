@@ -350,11 +350,24 @@ fun TeamTimelineScreen(
     editingPhase?.let { phase ->
         GenericEditDialog(
             title = "Phase",
-            fields = mapOf("name" to phase.phaseName, "budget" to phase.estimatedBudget.toString()),
+            fields = mapOf(
+                "name" to phase.phaseName, 
+                "quarter" to phase.quarter,
+                "startDate" to phase.startDate,
+                "endDate" to phase.endDate,
+                "progress" to phase.progress.toString(),
+                "headcount" to phase.headCount.toString(),
+                "budget" to phase.estimatedBudget.toString()
+            ),
             onDismiss = { editingPhase = null },
             onSave = { updated ->
                 onUpdatePhase(phase.copy(
                     phaseName = updated["name"] ?: phase.phaseName,
+                    quarter = updated["quarter"] ?: phase.quarter,
+                    startDate = updated["startDate"] ?: phase.startDate,
+                    endDate = updated["endDate"] ?: phase.endDate,
+                    progress = updated["progress"]?.toIntOrNull() ?: phase.progress,
+                    headCount = updated["headcount"]?.toIntOrNull() ?: phase.headCount,
                     estimatedBudget = updated["budget"]?.toDoubleOrNull() ?: phase.estimatedBudget
                 ))
                 editingPhase = null
@@ -365,14 +378,23 @@ fun TeamTimelineScreen(
     editingMember?.let { member ->
         GenericEditDialog(
             title = "Team Member",
-            fields = mapOf("name" to member.name, "role" to member.role, "rate" to member.hourlyRate.toString(), "allocation" to member.allocationPercentage.toString()),
+            fields = mapOf(
+                "name" to member.name, 
+                "role" to member.role, 
+                "email" to member.email,
+                "rate" to member.hourlyRate.toString(), 
+                "allocation" to member.allocationPercentage.toString(),
+                "period" to member.activePeriod
+            ),
             onDismiss = { editingMember = null },
             onSave = { updated ->
                 onUpdateMember(member.copy(
                     name = updated["name"] ?: member.name,
                     role = updated["role"] ?: member.role,
+                    email = updated["email"] ?: member.email,
                     hourlyRate = updated["rate"]?.toDoubleOrNull() ?: member.hourlyRate,
-                    allocationPercentage = updated["allocation"]?.toIntOrNull() ?: member.allocationPercentage
+                    allocationPercentage = updated["allocation"]?.toIntOrNull() ?: member.allocationPercentage,
+                    activePeriod = updated["period"] ?: member.activePeriod
                 ))
                 editingMember = null
             }

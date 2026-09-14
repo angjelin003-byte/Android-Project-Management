@@ -285,13 +285,27 @@ fun ProjectsScreen(
     editingProject?.let { proj ->
         GenericEditDialog(
             title = "Project",
-            fields = mapOf("name" to proj.name, "client" to proj.client, "budget" to proj.totalBudget.toString()),
+            fields = mapOf(
+                "name" to proj.name, 
+                "client" to proj.client, 
+                "budget" to proj.totalBudget.toString(),
+                "description" to proj.description,
+                "startDate" to proj.startDate,
+                "endDate" to proj.targetEndDate,
+                "manager" to proj.leadManager,
+                "completion" to proj.completionPercentage.toString()
+            ),
             onDismiss = { editingProject = null },
             onSave = { updated ->
                 onUpdateProject(proj.copy(
                     name = updated["name"] ?: proj.name,
                     client = updated["client"] ?: proj.client,
-                    totalBudget = updated["budget"]?.toDoubleOrNull() ?: proj.totalBudget
+                    totalBudget = updated["budget"]?.toDoubleOrNull() ?: proj.totalBudget,
+                    description = updated["description"] ?: proj.description,
+                    startDate = updated["startDate"] ?: proj.startDate,
+                    targetEndDate = updated["endDate"] ?: proj.targetEndDate,
+                    leadManager = updated["manager"] ?: proj.leadManager,
+                    completionPercentage = updated["completion"]?.toIntOrNull() ?: proj.completionPercentage
                 ))
                 editingProject = null
             }
@@ -301,12 +315,23 @@ fun ProjectsScreen(
     editingTask?.let { task ->
         GenericEditDialog(
             title = "Task",
-            fields = mapOf("title" to task.title, "description" to task.description),
+            fields = mapOf(
+                "title" to task.title, 
+                "description" to task.description,
+                "assignee" to task.assigneeName,
+                "date" to task.date,
+                "hours" to task.durationHours.toString(),
+                "cost" to task.costImpact.toString()
+            ),
             onDismiss = { editingTask = null },
             onSave = { updated ->
                 onUpdateTask(task.copy(
                     title = updated["title"] ?: task.title,
-                    description = updated["description"] ?: task.description
+                    description = updated["description"] ?: task.description,
+                    assigneeName = updated["assignee"] ?: task.assigneeName,
+                    date = updated["date"] ?: task.date,
+                    durationHours = updated["hours"]?.toDoubleOrNull() ?: task.durationHours,
+                    costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact
                 ))
                 editingTask = null
             }
