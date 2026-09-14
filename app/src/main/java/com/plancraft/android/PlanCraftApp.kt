@@ -21,12 +21,16 @@ import com.plancraft.android.ui.timeline.TeamTimelineScreen
 import com.plancraft.android.ui.components.GenericEditDialog
 
 import com.plancraft.android.ui.settings.SettingsScreen
+import com.plancraft.android.ui.user.UserScreen
+import com.plancraft.android.model.User
+import com.plancraft.android.model.UserRole
 
 enum class AppDestination(val title: String, val icon: ImageVector) {
     CALENDAR("Calendar", Icons.Default.CalendarMonth),
     PROJECTS("Projects", Icons.Default.Folder),
     ECONOMY("Economy", Icons.Default.AccountBalanceWallet),
     PEOPLE("People", Icons.Default.People),
+    USER("User", Icons.Default.AccountCircle),
     SETTINGS("Settings", Icons.Default.Settings)
 }
 
@@ -45,6 +49,10 @@ fun PlanCraftApp() {
     var members by remember { mutableStateOf(SampleData.sampleTeamMembers) }
     var budgetAllocations by remember { mutableStateOf(SampleData.sampleBudgetAllocations) }
     var isCalendarExpanded by remember { mutableStateOf(false) }
+
+    var currentUser by remember { 
+        mutableStateOf(User(name = "New User", email = "user@plancraft.io", role = UserRole.ADMIN)) 
+    }
 
     Scaffold(
         topBar = {
@@ -216,6 +224,12 @@ fun PlanCraftApp() {
                 }
                 AppDestination.SETTINGS -> {
                     SettingsScreen()
+                }
+                AppDestination.USER -> {
+                    UserScreen(
+                        user = currentUser,
+                        onUpdateUser = { currentUser = it }
+                    )
                 }
             }
         }
