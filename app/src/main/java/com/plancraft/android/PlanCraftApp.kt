@@ -70,7 +70,7 @@ fun PlanCraftApp() {
                     if (currentDestination == AppDestination.CALENDAR) {
                         IconButton(onClick = { isCalendarExpanded = !isCalendarExpanded }) {
                             Icon(
-                                if (isCalendarExpanded) Icons.Default.OpenInFull else Icons.Default.CloseFullscreen,
+                                if (isCalendarExpanded) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
                                 contentDescription = "Toggle Expand",
                                 tint = IndigoSecondary
                             )
