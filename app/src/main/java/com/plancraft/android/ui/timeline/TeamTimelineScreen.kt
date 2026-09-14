@@ -159,16 +159,16 @@ fun TeamTimelineScreen(
                             }
 
                             Spacer(modifier = Modifier.height(6.dp))
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                                 Text(
                                     text = phase.phaseName,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = Color.White,
+                                    modifier = Modifier.weight(1f)
                                 )
-                                Spacer(modifier = Modifier.weight(1f))
-                                IconButton(onClick = { editingPhase = phase }, modifier = Modifier.size(24.dp)) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                IconButton(onClick = { editingPhase = phase }, modifier = Modifier.size(28.dp)) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(18.dp))
                                 }
                             }
 
@@ -291,16 +291,16 @@ fun TeamTimelineScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
 
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                                         Text(
                                             text = member.name,
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.White
+                                            color = Color.White,
+                                            modifier = Modifier.weight(1f)
                                         )
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        IconButton(onClick = { editingMember = member }, modifier = Modifier.size(24.dp)) {
-                                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                                        IconButton(onClick = { editingMember = member }, modifier = Modifier.size(28.dp)) {
+                                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(18.dp))
                                         }
                                     }
                                     Text(

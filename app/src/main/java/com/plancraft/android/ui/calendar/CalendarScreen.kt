@@ -334,9 +334,9 @@ fun TaskCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                     Box(
                         modifier = Modifier
                             .size(10.dp)
@@ -348,11 +348,11 @@ fun TaskCard(
                         text = task.projectName,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = IndigoSecondary
+                        color = IndigoSecondary,
+                        modifier = Modifier.weight(1f)
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                    IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
                     }
                 }
 

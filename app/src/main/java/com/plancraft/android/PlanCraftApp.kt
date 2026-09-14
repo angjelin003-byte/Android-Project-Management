@@ -104,7 +104,25 @@ fun PlanCraftApp() {
                         projects = projects,
                         tasks = tasks,
                         onSelectProject = { /* Filter or navigate */ },
-                        onUpdateProject = { updated -> projects = projects.map { if (it.id == updated.id) updated else it } },
+                        onUpdateProject = { updated -> 
+                            val oldName = projects.find { it.id == updated.id }?.name
+                            projects = projects.map { if (it.id == updated.id) updated else it }
+                            
+                            // Propagate project name changes
+                            if (oldName != null && oldName != updated.name) {
+                                tasks = tasks.map { 
+                                    if (it.projectId == updated.id || it.projectName == oldName) 
+                                        it.copy(projectName = updated.name) 
+                                    else it 
+                                }
+                                incomes = incomes.map { 
+                                    if (it.projectName == oldName) it.copy(projectName = updated.name) else it 
+                                }
+                                expenses = expenses.map { 
+                                    if (it.projectName == oldName) it.copy(projectName = updated.name) else it 
+                                }
+                            }
+                        },
                         onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } },
                         onAddProject = { newProj -> projects = listOf(newProj) + projects },
                         onAddTask = { newTask -> tasks = listOf(newTask) + tasks }
@@ -143,7 +161,25 @@ fun PlanCraftApp() {
                         phases = phases,
                         members = members,
                         onUpdatePhase = { updated -> phases = phases.map { if (it.id == updated.id) updated else it } },
-                        onUpdateMember = { updated -> members = members.map { if (it.id == updated.id) updated else it } },
+                        onUpdateMember = { updated -> 
+                            val oldName = members.find { it.id == updated.id }?.name
+                            members = members.map { if (it.id == updated.id) updated else it }
+                            
+                            // Propagate member name changes
+                            if (oldName != null && oldName != updated.name) {
+                                tasks = tasks.map { 
+                                    if (it.assigneeId == updated.id || it.assigneeName == oldName) 
+                                        it.copy(assigneeName = updated.name) 
+                                    else it 
+                                }
+                                projects = projects.map { 
+                                    if (it.leadManager == oldName) it.copy(leadManager = updated.name) else it 
+                                }
+                                expenses = expenses.map { 
+                                    if (it.loggedBy == oldName) it.copy(loggedBy = updated.name) else it 
+                                }
+                            }
+                        },
                         onAddPhase = { newPhase -> phases = listOf(newPhase) + phases },
                         onAddMember = { newMember -> members = listOf(newMember) + members }
                     )

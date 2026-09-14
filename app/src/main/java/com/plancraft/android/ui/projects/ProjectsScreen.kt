@@ -152,39 +152,42 @@ fun ProjectsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.Top
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = project.name,
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
                                     )
-                                    IconButton(onClick = { editingProject = project }, modifier = Modifier.size(24.dp)) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
-                                    }
                                 }
 
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = when (project.status) {
-                                        ProjectStatus.IN_PROGRESS -> IndigoPrimary.copy(alpha = 0.2f)
-                                        ProjectStatus.COMPLETED -> EmeraldSuccess.copy(alpha = 0.2f)
-                                        ProjectStatus.PLANNING -> CyanAccent.copy(alpha = 0.2f)
-                                        ProjectStatus.ON_HOLD -> AmberWarning.copy(alpha = 0.2f)
-                                    }
-                                ) {
-                                    Text(
-                                        text = project.status.name.replace("_", " "),
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
                                         color = when (project.status) {
-                                            ProjectStatus.IN_PROGRESS -> IndigoSecondary
-                                            ProjectStatus.COMPLETED -> EmeraldSuccess
-                                            ProjectStatus.PLANNING -> CyanAccent
-                                            ProjectStatus.ON_HOLD -> AmberWarning
-                                        },
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                    )
+                                            ProjectStatus.IN_PROGRESS -> IndigoPrimary.copy(alpha = 0.2f)
+                                            ProjectStatus.COMPLETED -> EmeraldSuccess.copy(alpha = 0.2f)
+                                            ProjectStatus.PLANNING -> CyanAccent.copy(alpha = 0.2f)
+                                            ProjectStatus.ON_HOLD -> AmberWarning.copy(alpha = 0.2f)
+                                        }
+                                    ) {
+                                        Text(
+                                            text = project.status.name.replace("_", " "),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = when (project.status) {
+                                                ProjectStatus.IN_PROGRESS -> IndigoSecondary
+                                                ProjectStatus.COMPLETED -> EmeraldSuccess
+                                                ProjectStatus.PLANNING -> CyanAccent
+                                                ProjectStatus.ON_HOLD -> AmberWarning
+                                            },
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    IconButton(onClick = { editingProject = project }, modifier = Modifier.size(28.dp)) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    }
                                 }
                             }
 
@@ -462,7 +465,11 @@ fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
                                 .border(1.dp, SlateBorder, RoundedCornerShape(8.dp))
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Top
+                                ) {
                                     Text(
                                         text = task.title,
                                         fontSize = 13.sp,
@@ -470,8 +477,8 @@ fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
                                         color = Color.White,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    IconButton(onClick = { onEditTask(task) }, modifier = Modifier.size(20.dp)) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(12.dp))
+                                    IconButton(onClick = { onEditTask(task) }, modifier = Modifier.size(24.dp)) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))

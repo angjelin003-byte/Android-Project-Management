@@ -394,16 +394,16 @@ fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit, onEdit: (Bill) 
                             }
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                             Text(
                                 text = bill.title,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
+                                modifier = Modifier.weight(1f)
                             )
-                            Spacer(modifier = Modifier.weight(1f))
-                            IconButton(onClick = { onEdit(bill) }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                            IconButton(onClick = { onEdit(bill) }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
                             }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
@@ -486,11 +486,10 @@ fun IncomesList(incomes: List<Income>, pendingTotal: Double, onEdit: (Income) ->
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = inc.projectName, fontSize = 11.sp, color = IndigoSecondary, fontWeight = FontWeight.SemiBold)
                             Spacer(modifier = Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = inc.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                IconButton(onClick = { onEdit(inc) }, modifier = Modifier.size(20.dp)) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(12.dp))
+                            Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
+                                Text(text = inc.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.weight(1f))
+                                IconButton(onClick = { onEdit(inc) }, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
                                 }
                             }
                             Spacer(modifier = Modifier.height(2.dp))
@@ -549,11 +548,10 @@ fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expens
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = exp.category.name.replace("_", " & "), fontSize = 11.sp, color = CyanAccent)
                         Spacer(modifier = Modifier.height(2.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = exp.description, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(onClick = { onEdit(exp) }, modifier = Modifier.size(20.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(12.dp))
+                        Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
+                            Text(text = exp.description, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.weight(1f))
+                            IconButton(onClick = { onEdit(exp) }, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
                             }
                         }
                         Spacer(modifier = Modifier.height(2.dp))
@@ -593,12 +591,12 @@ fun CategoryBudgetsView(allocations: List<BudgetAllocation>, onEdit: (BudgetAllo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                             Text(text = name, fontWeight = FontWeight.SemiBold, color = Color.White, fontSize = 14.sp)
-                            IconButton(onClick = { onEdit(alloc) }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                            IconButton(onClick = { onEdit(alloc) }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
                             }
                         }
                         Text(text = "$pct%", fontWeight = FontWeight.Bold, color = if (pct > 80) AmberWarning else EmeraldSuccess, fontSize = 14.sp)
