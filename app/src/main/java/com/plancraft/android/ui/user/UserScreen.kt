@@ -168,9 +168,9 @@ fun AccountSection(user: User, onUpdateUser: (User) -> Unit) {
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 AccountItem(Icons.Default.Email, "Email", user.email)
-                Divider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
                 AccountItem(Icons.Default.Business, "Department", user.department)
-                Divider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
                 AccountItem(Icons.Default.Language, "Language", "English (US)")
             }
         }
@@ -194,9 +194,9 @@ fun SecuritySection() {
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 AccountItem(Icons.Default.Lock, "Change Password", "Updated 2m ago")
-                Divider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
                 AccountItem(Icons.Default.VpnKey, "Two-Factor Auth", "Enabled")
-                Divider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
                 AccountItem(Icons.Default.Visibility, "Profile Visibility", "Team Only")
             }
         }

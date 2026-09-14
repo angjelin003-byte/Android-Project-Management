@@ -67,7 +67,7 @@ fun SettingsScreen() {
                             }
                         }
                     )
-                    Divider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                    HorizontalDivider(color = SlateBorder, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
                     SettingsItem(
                         icon = Icons.Default.DateRange,
                         title = "Date Format",

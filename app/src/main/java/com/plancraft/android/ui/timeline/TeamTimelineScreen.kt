@@ -196,7 +196,7 @@ fun TeamTimelineScreen(
                             )
 
                             Spacer(modifier = Modifier.height(14.dp))
-                            Divider(color = SlateBorder)
+                            HorizontalDivider(color = SlateBorder)
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Row(

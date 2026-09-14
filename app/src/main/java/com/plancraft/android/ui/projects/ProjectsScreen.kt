@@ -449,7 +449,7 @@ fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
-                Divider(color = SlateBorder)
+                HorizontalDivider(color = SlateBorder)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 LazyColumn(
