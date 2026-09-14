@@ -36,9 +36,13 @@ fun EconomyScreen(
     budgetAllocations: List<BudgetAllocation> = emptyList(),
     onToggleBillPaid: (String) -> Unit,
     onUpdateBill: (Bill) -> Unit = {},
+    onDeleteBill: (String) -> Unit = {},
     onUpdateIncome: (Income) -> Unit = {},
+    onDeleteIncome: (String) -> Unit = {},
     onUpdateExpense: (Expense) -> Unit = {},
+    onDeleteExpense: (String) -> Unit = {},
     onUpdateBudgetAllocation: (BudgetAllocation) -> Unit = {},
+    onDeleteBudgetAllocation: (ExpenseCategory) -> Unit = {},
     onAddBill: (Bill) -> Unit = {},
     onAddIncome: (Income) -> Unit = {},
     onAddExpense: (Expense) -> Unit = {}
@@ -88,7 +92,7 @@ fun EconomyScreen(
         Text(
             text = "Economy & Budget",
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
+            color = TextPrimary,
             fontWeight = FontWeight.Bold
         )
         Text(
@@ -151,7 +155,7 @@ fun EconomyScreen(
         ScrollableTabRow(
             selectedTabIndex = selectedTab,
             containerColor = SlateSurface,
-            contentColor = Color.White,
+            contentColor = TextPrimary,
             edgePadding = 0.dp,
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
@@ -183,10 +187,10 @@ fun EconomyScreen(
 
         // Tab Content
         when (selectedTab) {
-            0 -> BillsList(bills = bills, onTogglePaid = onToggleBillPaid, onEdit = { editingBill = it })
-            1 -> IncomesList(incomes = incomes, pendingTotal = pendingIncome, onEdit = { editingIncome = it })
-            2 -> ExpensesList(expenses = expenses, totalExpenses = totalExpenses, onEdit = { editingExpense = it })
-            3 -> CategoryBudgetsView(allocations = budgetAllocations, onEdit = { editingBudgetAllocation = it })
+            0 -> BillsList(bills = bills, onTogglePaid = onToggleBillPaid, onEdit = { editingBill = it }, onDelete = onDeleteBill)
+            1 -> IncomesList(incomes = incomes, pendingTotal = pendingIncome, onEdit = { editingIncome = it }, onDelete = onDeleteIncome)
+            2 -> ExpensesList(expenses = expenses, totalExpenses = totalExpenses, onEdit = { editingExpense = it }, onDelete = onDeleteExpense)
+            3 -> CategoryBudgetsView(allocations = budgetAllocations, onEdit = { editingBudgetAllocation = it }, onDelete = onDeleteBudgetAllocation)
         }
     }
     }
@@ -201,6 +205,10 @@ fun EconomyScreen(
                     allocatedAmount = updated["allocated"]?.toDoubleOrNull() ?: alloc.allocatedAmount,
                     spentAmount = updated["spent"]?.toDoubleOrNull() ?: alloc.spentAmount
                 ))
+                editingBudgetAllocation = null
+            },
+            onDelete = {
+                onDeleteBudgetAllocation(alloc.category)
                 editingBudgetAllocation = null
             }
         )
@@ -228,6 +236,10 @@ fun EconomyScreen(
                     invoiceNumber = updated["invoice"]?.ifBlank { null }
                 ))
                 editingBill = null
+            },
+            onDelete = {
+                onDeleteBill(bill.id)
+                editingBill = null
             }
         )
     }
@@ -254,6 +266,10 @@ fun EconomyScreen(
                     referenceCode = updated["reference"] ?: inc.referenceCode
                 ))
                 editingIncome = null
+            },
+            onDelete = {
+                onDeleteIncome(inc.id)
+                editingIncome = null
             }
         )
     }
@@ -279,6 +295,10 @@ fun EconomyScreen(
                     loggedBy = updated["loggedBy"] ?: exp.loggedBy,
                     paymentMethod = updated["paymentMethod"] ?: exp.paymentMethod
                 ))
+                editingExpense = null
+            },
+            onDelete = {
+                onDeleteExpense(exp.id)
                 editingExpense = null
             }
         )
@@ -355,7 +375,12 @@ fun EconomyScreen(
 }
 
 @Composable
-fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit, onEdit: (Bill) -> Unit = {}) {
+fun BillsList(
+    bills: List<Bill>,
+    onTogglePaid: (String) -> Unit,
+    onEdit: (Bill) -> Unit = {},
+    onDelete: (String) -> Unit = {}
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxSize()
@@ -368,15 +393,13 @@ fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit, onEdit: (Bill) 
                     .fillMaxWidth()
                     .border(1.dp, SlateBorder, RoundedCornerShape(12.dp))
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                             Text(
                                 text = bill.vendor,
                                 fontSize = 11.sp,
@@ -398,50 +421,89 @@ fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit, onEdit: (Bill) 
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+
+                        var billMenuOpen by remember { mutableStateOf(false) }
+                        Box {
+                            IconButton(onClick = { billMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                            }
+                            DropdownMenu(
+                                expanded = billMenuOpen,
+                                onDismissRequest = { billMenuOpen = false },
+                                modifier = Modifier.background(SlateSurface)
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit Bill", color = TextPrimary) },
+                                    onClick = {
+                                        billMenuOpen = false
+                                        onEdit(bill)
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete Bill", color = RoseDanger) },
+                                    onClick = {
+                                        billMenuOpen = false
+                                        onDelete(bill.id)
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = bill.title,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                modifier = Modifier.weight(1f)
+                                color = TextPrimary
                             )
-                            IconButton(onClick = { onEdit(bill) }, modifier = Modifier.size(28.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Due: ${bill.dueDate} • ${bill.invoiceNumber ?: "No Ref"}",
-                            fontSize = 12.sp,
-                            color = TextMuted
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = "$${"%,.2f".format(bill.amount)}",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (bill.isPaid) TextSecondary else Color.White
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Button(
-                            onClick = { onTogglePaid(bill.id) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (bill.isPaid) SlateSurfaceVariant else IndigoPrimary
-                            ),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            shape = RoundedCornerShape(6.dp),
-                            modifier = Modifier.height(30.dp)
-                        ) {
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = if (bill.isPaid) "PAID ✓" else "PAY NOW",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (bill.isPaid) EmeraldSuccess else Color.White
+                                text = "Due: ${bill.dueDate} • ${bill.invoiceNumber ?: "No Ref"}",
+                                fontSize = 12.sp,
+                                color = TextMuted
                             )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = "$${"%,.2f".format(bill.amount)}",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (bill.isPaid) TextSecondary else TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Button(
+                                onClick = { onTogglePaid(bill.id) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (bill.isPaid) SlateSurfaceVariant else IndigoPrimary
+                                ),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(6.dp),
+                                modifier = Modifier.height(30.dp)
+                            ) {
+                                Text(
+                                    text = if (bill.isPaid) "PAID ✓" else "PAY NOW",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (bill.isPaid) EmeraldSuccess else Color.White
+                                )
+                            }
                         }
                     }
                 }
@@ -451,7 +513,12 @@ fun BillsList(bills: List<Bill>, onTogglePaid: (String) -> Unit, onEdit: (Bill) 
 }
 
 @Composable
-fun IncomesList(incomes: List<Income>, pendingTotal: Double, onEdit: (Income) -> Unit = {}) {
+fun IncomesList(
+    incomes: List<Income>,
+    pendingTotal: Double,
+    onEdit: (Income) -> Unit = {},
+    onDelete: (String) -> Unit = {}
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         Card(
             modifier = Modifier
@@ -481,45 +548,83 @@ fun IncomesList(incomes: List<Income>, pendingTotal: Double, onEdit: (Income) ->
                         .fillMaxWidth()
                         .border(1.dp, SlateBorder, RoundedCornerShape(12.dp))
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(text = inc.projectName, fontSize = 11.sp, color = IndigoSecondary, fontWeight = FontWeight.SemiBold)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
-                                Text(text = inc.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.weight(1f))
-                                IconButton(onClick = { onEdit(inc) }, modifier = Modifier.size(24.dp)) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+
+                            var incMenuOpen by remember { mutableStateOf(false) }
+                            Box {
+                                IconButton(onClick = { incMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                }
+                                DropdownMenu(
+                                    expanded = incMenuOpen,
+                                    onDismissRequest = { incMenuOpen = false },
+                                    modifier = Modifier.background(SlateSurface)
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Edit Income", color = TextPrimary) },
+                                        onClick = {
+                                            incMenuOpen = false
+                                            onEdit(inc)
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Delete Income", color = RoseDanger) },
+                                        onClick = {
+                                            incMenuOpen = false
+                                            onDelete(inc.id)
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                        }
+                                    )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = "${inc.source.name.replace("_", " ")} • ${inc.date}", fontSize = 12.sp, color = TextMuted)
                         }
 
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "+$${"%,.2f".format(inc.amount)}",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = EmeraldSuccess
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = if (inc.status == "Received") EmeraldSuccess.copy(alpha = 0.2f) else AmberWarning.copy(alpha = 0.2f)
-                            ) {
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = inc.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(text = "${inc.source.name.replace("_", " ")} • ${inc.date}", fontSize = 12.sp, color = TextMuted)
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    text = inc.status,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (inc.status == "Received") EmeraldSuccess else AmberWarning,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    text = "+$${"%,.2f".format(inc.amount)}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = EmeraldSuccess
                                 )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = if (inc.status == "Received") EmeraldSuccess.copy(alpha = 0.2f) else AmberWarning.copy(alpha = 0.2f)
+                                ) {
+                                    Text(
+                                        text = inc.status,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (inc.status == "Received") EmeraldSuccess else AmberWarning,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -530,7 +635,12 @@ fun IncomesList(incomes: List<Income>, pendingTotal: Double, onEdit: (Income) ->
 }
 
 @Composable
-fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expense) -> Unit = {}) {
+fun ExpensesList(
+    expenses: List<Expense>,
+    totalExpenses: Double,
+    onEdit: (Expense) -> Unit = {},
+    onDelete: (String) -> Unit = {}
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxSize()
@@ -543,31 +653,70 @@ fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expens
                     .fillMaxWidth()
                     .border(1.dp, SlateBorder, RoundedCornerShape(12.dp))
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(text = exp.category.name.replace("_", " & "), fontSize = 11.sp, color = CyanAccent)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
-                            Text(text = exp.description, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.weight(1f))
-                            IconButton(onClick = { onEdit(exp) }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+
+                        var expMenuOpen by remember { mutableStateOf(false) }
+                        Box {
+                            IconButton(onClick = { expMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                            }
+                            DropdownMenu(
+                                expanded = expMenuOpen,
+                                onDismissRequest = { expMenuOpen = false },
+                                modifier = Modifier.background(SlateSurface)
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit Expense", color = TextPrimary) },
+                                    onClick = {
+                                        expMenuOpen = false
+                                        onEdit(exp)
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete Expense", color = RoseDanger) },
+                                    onClick = {
+                                        expMenuOpen = false
+                                        onDelete(exp.id)
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                    }
+                                )
                             }
                         }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(text = "By ${exp.loggedBy} via ${exp.paymentMethod} • ${exp.date}", fontSize = 12.sp, color = TextMuted)
                     }
-                    Text(
-                        text = "-$${"%,.2f".format(exp.amount)}",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = RoseDanger
-                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = exp.description, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(text = "By ${exp.loggedBy} via ${exp.paymentMethod} • ${exp.date}", fontSize = 12.sp, color = TextMuted)
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Text(
+                            text = "-$${"%,.2f".format(exp.amount)}",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = RoseDanger
+                        )
+                    }
                 }
             }
         }
@@ -575,7 +724,11 @@ fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expens
 }
 
 @Composable
-fun CategoryBudgetsView(allocations: List<BudgetAllocation>, onEdit: (BudgetAllocation) -> Unit) {
+fun CategoryBudgetsView(
+    allocations: List<BudgetAllocation>,
+    onEdit: (BudgetAllocation) -> Unit,
+    onDelete: (ExpenseCategory) -> Unit = {}
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize()
@@ -596,15 +749,46 @@ fun CategoryBudgetsView(allocations: List<BudgetAllocation>, onEdit: (BudgetAllo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                            Text(text = name, fontWeight = FontWeight.SemiBold, color = Color.White, fontSize = 14.sp)
-                            IconButton(onClick = { onEdit(alloc) }, modifier = Modifier.size(28.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                        Text(text = name, fontWeight = FontWeight.SemiBold, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "$pct%", fontWeight = FontWeight.Bold, color = if (pct > 80) AmberWarning else EmeraldSuccess, fontSize = 14.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            var allocMenuOpen by remember { mutableStateOf(false) }
+                            Box {
+                                IconButton(onClick = { allocMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                }
+                                DropdownMenu(
+                                    expanded = allocMenuOpen,
+                                    onDismissRequest = { allocMenuOpen = false },
+                                    modifier = Modifier.background(SlateSurface)
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Edit Budget", color = TextPrimary) },
+                                        onClick = {
+                                            allocMenuOpen = false
+                                            onEdit(alloc)
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Delete Budget", color = RoseDanger) },
+                                        onClick = {
+                                            allocMenuOpen = false
+                                            onDelete(alloc.category)
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                        }
+                                    )
+                                }
                             }
                         }
-                        Text(text = "$pct%", fontWeight = FontWeight.Bold, color = if (pct > 80) AmberWarning else EmeraldSuccess, fontSize = 14.sp)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     LinearProgressIndicator(

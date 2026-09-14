@@ -30,7 +30,9 @@ fun TeamTimelineScreen(
     phases: List<ProjectTimelinePhase>,
     members: List<TeamMember>,
     onUpdatePhase: (ProjectTimelinePhase) -> Unit = {},
+    onDeletePhase: (String) -> Unit = {},
     onUpdateMember: (TeamMember) -> Unit = {},
+    onDeleteMember: (String) -> Unit = {},
     onAddPhase: (ProjectTimelinePhase) -> Unit = {},
     onAddMember: (TeamMember) -> Unit = {}
 ) {
@@ -72,7 +74,7 @@ fun TeamTimelineScreen(
         Text(
             text = "Groups & Timeline",
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
+            color = TextPrimary,
             fontWeight = FontWeight.Bold
         )
         Text(
@@ -87,7 +89,7 @@ fun TeamTimelineScreen(
         TabRow(
             selectedTabIndex = viewMode,
             containerColor = SlateSurface,
-            contentColor = Color.White,
+            contentColor = TextPrimary,
             indicator = {},
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
@@ -166,11 +168,40 @@ fun TeamTimelineScreen(
                                     text = phase.phaseName,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     modifier = Modifier.weight(1f)
                                 )
-                                IconButton(onClick = { editingPhase = phase }, modifier = Modifier.size(28.dp)) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                var phaseMenuOpen by remember { mutableStateOf(false) }
+                                Box {
+                                    IconButton(onClick = { phaseMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    }
+                                    DropdownMenu(
+                                        expanded = phaseMenuOpen,
+                                        onDismissRequest = { phaseMenuOpen = false },
+                                        modifier = Modifier.background(SlateSurface)
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Edit Phase", color = TextPrimary) },
+                                            onClick = {
+                                                phaseMenuOpen = false
+                                                editingPhase = phase
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("Delete Phase", color = RoseDanger) },
+                                            onClick = {
+                                                phaseMenuOpen = false
+                                                onDeletePhase(phase.id)
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                            }
+                                        )
+                                    }
                                 }
                             }
 
@@ -298,11 +329,40 @@ fun TeamTimelineScreen(
                                             text = member.name,
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.White,
+                                            color = TextPrimary,
                                             modifier = Modifier.weight(1f)
                                         )
-                                        IconButton(onClick = { editingMember = member }, modifier = Modifier.size(28.dp)) {
-                                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                        var memberMenuOpen by remember { mutableStateOf(false) }
+                                        Box {
+                                            IconButton(onClick = { memberMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                                Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                            }
+                                            DropdownMenu(
+                                                expanded = memberMenuOpen,
+                                                onDismissRequest = { memberMenuOpen = false },
+                                                modifier = Modifier.background(SlateSurface)
+                                            ) {
+                                                DropdownMenuItem(
+                                                    text = { Text("Edit Member", color = TextPrimary) },
+                                                    onClick = {
+                                                        memberMenuOpen = false
+                                                        editingMember = member
+                                                    },
+                                                    leadingIcon = {
+                                                        Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                                    }
+                                                )
+                                                DropdownMenuItem(
+                                                    text = { Text("Delete Member", color = RoseDanger) },
+                                                    onClick = {
+                                                        memberMenuOpen = false
+                                                        onDeleteMember(member.id)
+                                                    },
+                                                    leadingIcon = {
+                                                        Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                                    }
+                                                )
+                                            }
                                         }
                                     }
                                     Text(
@@ -362,6 +422,10 @@ fun TeamTimelineScreen(
                 "budget" to phase.estimatedBudget.toString()
             ),
             onDismiss = { editingPhase = null },
+            onDelete = {
+                onDeletePhase(phase.id)
+                editingPhase = null
+            },
             onSave = { updated ->
                 onUpdatePhase(phase.copy(
                     phaseName = updated["name"] ?: phase.phaseName,
@@ -389,6 +453,10 @@ fun TeamTimelineScreen(
                 "period" to member.activePeriod
             ),
             onDismiss = { editingMember = null },
+            onDelete = {
+                onDeleteMember(member.id)
+                editingMember = null
+            },
             onSave = { updated ->
                 onUpdateMember(member.copy(
                     name = updated["name"] ?: member.name,

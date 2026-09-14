@@ -35,7 +35,9 @@ fun ProjectsScreen(
     tasks: List<Task>,
     onSelectProject: (String) -> Unit,
     onUpdateProject: (Project) -> Unit = {},
+    onDeleteProject: (String) -> Unit = {},
     onUpdateTask: (Task) -> Unit = {},
+    onDeleteTask: (String) -> Unit = {},
     onAddProject: (Project) -> Unit = {},
     onAddTask: (Task) -> Unit = {}
 ) {
@@ -83,7 +85,7 @@ fun ProjectsScreen(
                 Text(
                     text = "Project Portfolios",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
@@ -100,7 +102,7 @@ fun ProjectsScreen(
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = SlateSurface,
-            contentColor = Color.White,
+            contentColor = TextPrimary,
             indicator = {},
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
@@ -155,14 +157,14 @@ fun ProjectsScreen(
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.Top
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = project.name,
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = TextPrimary
                                     )
                                 }
 
@@ -190,8 +192,37 @@ fun ProjectsScreen(
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    IconButton(onClick = { editingProject = project }, modifier = Modifier.size(28.dp)) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    var projMenuOpen by remember { mutableStateOf(false) }
+                                    Box {
+                                        IconButton(onClick = { projMenuOpen = true }, modifier = Modifier.size(28.dp)) {
+                                            Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                        }
+                                        DropdownMenu(
+                                            expanded = projMenuOpen,
+                                            onDismissRequest = { projMenuOpen = false },
+                                            modifier = Modifier.background(SlateSurface)
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("Edit Project", color = TextPrimary) },
+                                                onClick = {
+                                                    projMenuOpen = false
+                                                    editingProject = project
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(18.dp))
+                                                }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("Delete Project", color = RoseDanger) },
+                                                onClick = {
+                                                    projMenuOpen = false
+                                                    onDeleteProject(project.id)
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(18.dp))
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -285,7 +316,7 @@ fun ProjectsScreen(
             }
         } else {
             // Kanban View across Status Columns
-            KanbanView(tasks = tasks, onEditTask = { editingTask = it })
+            KanbanView(tasks = tasks, onEditTask = { editingTask = it }, onDeleteTask = onDeleteTask)
         }
     }
     }
@@ -316,6 +347,10 @@ fun ProjectsScreen(
                     completionPercentage = updated["completion"]?.toIntOrNull() ?: proj.completionPercentage
                 ))
                 editingProject = null
+            },
+            onDelete = {
+                onDeleteProject(proj.id)
+                editingProject = null
             }
         )
     }
@@ -341,6 +376,10 @@ fun ProjectsScreen(
                     durationHours = updated["hours"]?.toDoubleOrNull() ?: task.durationHours,
                     costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact
                 ))
+                editingTask = null
+            },
+            onDelete = {
+                onDeleteTask(task.id)
                 editingTask = null
             }
         )
@@ -404,7 +443,11 @@ fun ProjectsScreen(
 }
 
 @Composable
-fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
+fun KanbanView(
+    tasks: List<Task>,
+    onEditTask: (Task) -> Unit = {},
+    onDeleteTask: (String) -> Unit = {}
+) {
     val columns = listOf(
         TaskStatus.TODO to "To Do",
         TaskStatus.IN_PROGRESS to "In Progress",
@@ -437,7 +480,7 @@ fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
                         text = title,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = TextPrimary
                     )
                     Surface(
                         shape = CircleShape,
@@ -473,17 +516,46 @@ fun KanbanView(tasks: List<Task>, onEditTask: (Task) -> Unit = {}) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Top
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
                                         text = task.title,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color.White,
+                                        color = TextPrimary,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    IconButton(onClick = { onEditTask(task) }, modifier = Modifier.size(24.dp)) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                                    var kanbanMenuOpen by remember { mutableStateOf(false) }
+                                    Box {
+                                        IconButton(onClick = { kanbanMenuOpen = true }, modifier = Modifier.size(24.dp)) {
+                                            Icon(Icons.Default.Edit, contentDescription = "Edit or Delete minitab", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                                        }
+                                        DropdownMenu(
+                                            expanded = kanbanMenuOpen,
+                                            onDismissRequest = { kanbanMenuOpen = false },
+                                            modifier = Modifier.background(SlateSurface)
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("Edit Task", color = TextPrimary) },
+                                                onClick = {
+                                                    kanbanMenuOpen = false
+                                                    onEditTask(task)
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Edit, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(16.dp))
+                                                }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("Delete Task", color = RoseDanger) },
+                                                onClick = {
+                                                    kanbanMenuOpen = false
+                                                    onDeleteTask(task.id)
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Delete, contentDescription = null, tint = RoseDanger, modifier = Modifier.size(16.dp))
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))

@@ -143,6 +143,9 @@ fun PlanCraftApp() {
                             tasks = listOf(newTask) + tasks
                         },
                         onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } },
+                        onDeleteTask = { id -> tasks = tasks.filter { it.id != id } },
+                        onUpdateProject = { updated -> projects = projects.map { if (it.id == updated.id) updated else it } },
+                        onDeleteProject = { id -> projects = projects.filter { it.id != id } },
                         isExpanded = isCalendarExpanded
                     )
                 }
@@ -170,7 +173,9 @@ fun PlanCraftApp() {
                                 }
                             }
                         },
+                        onDeleteProject = { id -> projects = projects.filter { it.id != id } },
                         onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } },
+                        onDeleteTask = { id -> tasks = tasks.filter { it.id != id } },
                         onAddProject = { newProj -> projects = listOf(newProj) + projects },
                         onAddTask = { newTask -> tasks = listOf(newTask) + tasks }
                     )
@@ -191,13 +196,17 @@ fun PlanCraftApp() {
                             }
                         },
                         onUpdateBill = { updated -> bills = bills.map { if (it.id == updated.id) updated else it } },
+                        onDeleteBill = { id -> bills = bills.filter { it.id != id } },
                         onUpdateIncome = { updated -> incomes = incomes.map { if (it.id == updated.id) updated else it } },
+                        onDeleteIncome = { id -> incomes = incomes.filter { it.id != id } },
                         onUpdateExpense = { updated -> expenses = expenses.map { if (it.id == updated.id) updated else it } },
+                        onDeleteExpense = { id -> expenses = expenses.filter { it.id != id } },
                         onUpdateBudgetAllocation = { updated -> 
                             budgetAllocations = budgetAllocations.map { 
                                 if (it.category == updated.category) updated else it 
                             } 
                         },
+                        onDeleteBudgetAllocation = { cat -> budgetAllocations = budgetAllocations.filter { it.category != cat } },
                         onAddBill = { newBill -> bills = listOf(newBill) + bills },
                         onAddIncome = { newIncome -> incomes = listOf(newIncome) + incomes },
                         onAddExpense = { newExpense -> expenses = listOf(newExpense) + expenses }
@@ -208,6 +217,7 @@ fun PlanCraftApp() {
                         phases = phases,
                         members = members,
                         onUpdatePhase = { updated -> phases = phases.map { if (it.id == updated.id) updated else it } },
+                        onDeletePhase = { id -> phases = phases.filter { it.id != id } },
                         onUpdateMember = { updated -> 
                             val oldName = members.find { it.id == updated.id }?.name
                             members = members.map { if (it.id == updated.id) updated else it }
@@ -227,6 +237,7 @@ fun PlanCraftApp() {
                                 }
                             }
                         },
+                        onDeleteMember = { id -> members = members.filter { it.id != id } },
                         onAddPhase = { newPhase -> phases = listOf(newPhase) + phases },
                         onAddMember = { newMember -> members = listOf(newMember) + members }
                     )

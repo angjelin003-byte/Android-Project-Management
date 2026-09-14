@@ -34,9 +34,13 @@ fun CalendarScreen(
     onToggleTaskStatus: (String) -> Unit,
     onAddTask: (Task) -> Unit,
     onUpdateTask: (Task) -> Unit = {},
+    onDeleteTask: (String) -> Unit = {},
+    onUpdateProject: (Project) -> Unit = {},
+    onDeleteProject: (String) -> Unit = {},
     isExpanded: Boolean = false
 ) {
     var editingTask by remember { mutableStateOf<Task?>(null) }
+    var editingProjectFromChip by remember { mutableStateOf<Project?>(null) }
     var selectedDate by remember { mutableStateOf("2026-09-14") }
     var selectedProjectFilter by remember { mutableStateOf<String?>("All") }
     var showAddTaskDialog by remember { mutableStateOf(false) }
@@ -96,7 +100,7 @@ fun CalendarScreen(
                     Text(
                         text = "Project Calendar",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
@@ -117,7 +121,7 @@ fun CalendarScreen(
                     ) {
                         Icon(Icons.Default.DateRange, contentDescription = null, tint = IndigoSecondary, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Sep 2026", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text(text = "Sep 2026", color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -168,7 +172,7 @@ fun CalendarScreen(
                             text = parts[1],
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = if (isSelected) Color.White else TextPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         if (tasksOnDate > 0) {
@@ -200,10 +204,65 @@ fun CalendarScreen(
                     )
                 }
                 items(projects) { proj ->
+                    var chipMenuOpen by remember { mutableStateOf(false) }
                     FilterChip(
                         selected = selectedProjectFilter == proj.id,
                         onClick = { selectedProjectFilter = proj.id },
-                        label = { Text(proj.name.take(18) + if (proj.name.length > 18) "..." else "") }
+                        label = { Text(proj.name.take(16) + if (proj.name.length > 16) "..." else "") },
+                        trailingIcon = {
+                            Box {
+                                IconButton(
+                                    onClick = { chipMenuOpen = true },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = "Edit or Delete minitab",
+                                        tint = if (selectedProjectFilter == proj.id) IndigoPrimary else TextSecondary,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = chipMenuOpen,
+                                    onDismissRequest = { chipMenuOpen = false },
+                                    modifier = Modifier.background(SlateSurface)
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Edit Project", color = TextPrimary) },
+                                        onClick = {
+                                            chipMenuOpen = false
+                                            editingProjectFromChip = proj
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Default.Edit,
+                                                contentDescription = null,
+                                                tint = IndigoSecondary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Delete Project", color = RoseDanger) },
+                                        onClick = {
+                                            chipMenuOpen = false
+                                            onDeleteProject(proj.id)
+                                            if (selectedProjectFilter == proj.id) {
+                                                selectedProjectFilter = "All"
+                                            }
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = null,
+                                                tint = RoseDanger,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     )
                 }
             }
@@ -219,7 +278,7 @@ fun CalendarScreen(
                 Text(
                     text = "Scheduled Tasks (${filteredTasks.size})",
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
+                    color = TextPrimary
                 )
                 Text(
                     text = "Date: $selectedDate",
@@ -250,7 +309,7 @@ fun CalendarScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "No tasks due on $selectedDate",
-                            color = Color.White,
+                            color = TextPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
@@ -266,12 +325,46 @@ fun CalendarScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(filteredTasks, key = { it.id }) { task ->
-                        TaskCard(task = task, onToggle = { onToggleTaskStatus(task.id) }, onEdit = { editingTask = task })
+                        TaskCard(
+                            task = task,
+                            onToggle = { onToggleTaskStatus(task.id) },
+                            onEdit = { editingTask = task },
+                            onDelete = { onDeleteTask(task.id) }
+                        )
                     }
                 }
             }
         }
     }
+    }
+
+    editingProjectFromChip?.let { proj ->
+        GenericEditDialog(
+            title = "Project",
+            fields = mapOf(
+                "name" to proj.name,
+                "client" to proj.client,
+                "description" to proj.description,
+                "budget" to proj.totalBudget.toString()
+            ),
+            onDismiss = { editingProjectFromChip = null },
+            onSave = { updated ->
+                onUpdateProject(proj.copy(
+                    name = updated["name"] ?: proj.name,
+                    client = updated["client"] ?: proj.client,
+                    description = updated["description"] ?: proj.description,
+                    totalBudget = updated["budget"]?.toDoubleOrNull() ?: proj.totalBudget
+                ))
+                editingProjectFromChip = null
+            },
+            onDelete = {
+                onDeleteProject(proj.id)
+                if (selectedProjectFilter == proj.id) {
+                    selectedProjectFilter = "All"
+                }
+                editingProjectFromChip = null
+            }
+        )
     }
 
     editingTask?.let { task ->
@@ -299,6 +392,10 @@ fun CalendarScreen(
                     costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact,
                     milestone = updated["milestone"]?.ifBlank { null }
                 ))
+                editingTask = null
+            },
+            onDelete = {
+                onDeleteTask(task.id)
                 editingTask = null
             }
         )
@@ -406,7 +503,8 @@ fun MonthGrid(month: String, tasks: List<Task>, onSelectDate: (String) -> Unit, 
 fun TaskCard(
     task: Task,
     onToggle: () -> Unit,
-    onEdit: () -> Unit = {}
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {}
 ) {
     val isDone = task.status == TaskStatus.DONE
     val priorityColor = when (task.priority) {
@@ -427,8 +525,9 @@ fun TaskCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Left: Priority indicator dot + Project name
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                     Box(
                         modifier = Modifier
@@ -441,35 +540,87 @@ fun TaskCard(
                         text = task.projectName,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = IndigoSecondary,
-                        modifier = Modifier.weight(1f)
+                        color = IndigoSecondary
                     )
-                    IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(16.dp))
-                    }
                 }
 
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = when (task.status) {
-                        TaskStatus.DONE -> EmeraldSuccess.copy(alpha = 0.2f)
-                        TaskStatus.IN_PROGRESS -> IndigoPrimary.copy(alpha = 0.2f)
-                        TaskStatus.IN_REVIEW -> VioletAccent.copy(alpha = 0.2f)
-                        else -> SlateSurfaceVariant
-                    }
-                ) {
-                    Text(
-                        text = task.status.name.replace("_", " "),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
+                // Right edge: Status badge + Pencil button with Edit & Delete options
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
                         color = when (task.status) {
-                            TaskStatus.DONE -> EmeraldSuccess
-                            TaskStatus.IN_PROGRESS -> IndigoSecondary
-                            TaskStatus.IN_REVIEW -> VioletAccent
-                            else -> TextSecondary
-                        },
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                    )
+                            TaskStatus.DONE -> EmeraldSuccess.copy(alpha = 0.2f)
+                            TaskStatus.IN_PROGRESS -> IndigoPrimary.copy(alpha = 0.2f)
+                            TaskStatus.IN_REVIEW -> VioletAccent.copy(alpha = 0.2f)
+                            else -> SlateSurfaceVariant
+                        }
+                    ) {
+                        Text(
+                            text = task.status.name.replace("_", " "),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = when (task.status) {
+                                TaskStatus.DONE -> EmeraldSuccess
+                                TaskStatus.IN_PROGRESS -> IndigoSecondary
+                                TaskStatus.IN_REVIEW -> VioletAccent
+                                else -> TextSecondary
+                            },
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    var taskMenuOpen by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(
+                            onClick = { taskMenuOpen = true },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = "Edit or Delete minitab",
+                                tint = TextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = taskMenuOpen,
+                            onDismissRequest = { taskMenuOpen = false },
+                            modifier = Modifier.background(SlateSurface)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Edit Task", color = TextPrimary) },
+                                onClick = {
+                                    taskMenuOpen = false
+                                    onEdit()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = null,
+                                        tint = IndigoSecondary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete Task", color = RoseDanger) },
+                                onClick = {
+                                    taskMenuOpen = false
+                                    onDelete()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = RoseDanger,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
@@ -492,7 +643,7 @@ fun TaskCard(
                         text = task.title,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = if (isDone) TextMuted else Color.White
+                        color = if (isDone) TextMuted else TextPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
