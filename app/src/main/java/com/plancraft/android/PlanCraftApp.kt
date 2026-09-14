@@ -16,8 +16,11 @@ import com.plancraft.android.model.Expense
 import com.plancraft.android.model.ExpenseCategory
 import com.plancraft.android.model.Income
 import com.plancraft.android.model.Project
+import com.plancraft.android.model.ProjectStatus
 import com.plancraft.android.model.ProjectTimelinePhase
 import com.plancraft.android.model.Task
+import com.plancraft.android.model.TaskPriority
+import com.plancraft.android.model.TaskStatus
 import com.plancraft.android.model.TeamMember
 import com.plancraft.android.model.User
 import com.plancraft.android.model.UserRole

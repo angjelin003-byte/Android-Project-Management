@@ -19,7 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.plancraft.android.model.*
+import com.plancraft.android.model.Bill
+import com.plancraft.android.model.BudgetAllocation
+import com.plancraft.android.model.Expense
+import com.plancraft.android.model.ExpenseCategory
+import com.plancraft.android.model.Income
+import com.plancraft.android.model.IncomeSource
 import com.plancraft.android.ui.theme.*
 import com.plancraft.android.ui.components.GenericEditDialog
 

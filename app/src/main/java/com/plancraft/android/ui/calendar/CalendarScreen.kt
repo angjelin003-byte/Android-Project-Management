@@ -20,7 +20,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.plancraft.android.model.*
+import com.plancraft.android.model.Project
+import com.plancraft.android.model.Task
+import com.plancraft.android.model.TaskPriority
+import com.plancraft.android.model.TaskStatus
 import com.plancraft.android.ui.theme.*
 import com.plancraft.android.ui.components.GenericEditDialog
 
@@ -269,6 +272,7 @@ fun CalendarScreen(
             }
         }
     }
+    }
 
     editingTask?.let { task ->
         GenericEditDialog(
@@ -305,7 +309,7 @@ fun CalendarScreen(
             selectedDate = selectedDate,
             projects = projects,
             onDismiss = { showAddTaskDialog = false },
-            onSave = { newTask ->
+            onSave = { newTask: Task ->
                 onAddTask(newTask)
                 showAddTaskDialog = false
             }

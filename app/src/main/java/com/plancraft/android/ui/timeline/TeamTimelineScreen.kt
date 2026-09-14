@@ -19,7 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.plancraft.android.model.*
+import com.plancraft.android.model.ProjectTimelinePhase
+import com.plancraft.android.model.StakeholderGroupType
+import com.plancraft.android.model.TeamMember
 import com.plancraft.android.ui.theme.*
 import com.plancraft.android.ui.components.GenericEditDialog
 

@@ -91,8 +91,8 @@ object SampleData {
     )
 
     val sampleExpenses = listOf(
-        Expense(id = "exp-1", title = "MacBook Pro M3", category = ExpenseCategory.HARDWARE_EQUIPMENT, amount = 2499.0, date = "2026-09-05", loggedBy = "Jordan Smith"),
-        Expense(id = "exp-2", title = "AWS Monthly", category = ExpenseCategory.INFRASTRUCTURE_CLOUD, amount = 850.0, date = "2026-09-01", loggedBy = "Sam Chen")
+        Expense(id = "exp-1", description = "MacBook Pro M3", category = ExpenseCategory.HARDWARE_EQUIPMENT, amount = 2499.0, date = "2026-09-05", loggedBy = "Jordan Smith"),
+        Expense(id = "exp-2", description = "AWS Monthly", category = ExpenseCategory.INFRASTRUCTURE_CLOUD, amount = 850.0, date = "2026-09-01", loggedBy = "Sam Chen")
     )
 
     val sampleTeamMembers = listOf(
