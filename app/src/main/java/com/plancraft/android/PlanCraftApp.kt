@@ -20,11 +20,14 @@ import com.plancraft.android.ui.theme.TextSecondary
 import com.plancraft.android.ui.timeline.TeamTimelineScreen
 import com.plancraft.android.ui.components.GenericEditDialog
 
+import com.plancraft.android.ui.settings.SettingsScreen
+
 enum class AppDestination(val title: String, val icon: ImageVector) {
     CALENDAR("Calendar", Icons.Default.CalendarMonth),
     PROJECTS("Projects", Icons.Default.Folder),
     ECONOMY("Economy", Icons.Default.AccountBalanceWallet),
-    PEOPLE("People", Icons.Default.People)
+    PEOPLE("People", Icons.Default.People),
+    SETTINGS("Settings", Icons.Default.Settings)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,8 +44,34 @@ fun PlanCraftApp() {
     var phases by remember { mutableStateOf(SampleData.sampleTimelinePhases) }
     var members by remember { mutableStateOf(SampleData.sampleTeamMembers) }
     var budgetAllocations by remember { mutableStateOf(SampleData.sampleBudgetAllocations) }
+    var isCalendarExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("PlanCraft", fontWeight = FontWeight.Bold, color = Color.White) },
+                actions = {
+                    IconButton(onClick = { 
+                        // Simulate data sync/update
+                        // In a real app, this would trigger a ViewModel refresh
+                    }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Update", tint = Color.White)
+                    }
+                    if (currentDestination == AppDestination.CALENDAR) {
+                        IconButton(onClick = { isCalendarExpanded = !isCalendarExpanded }) {
+                            Icon(
+                                if (isCalendarExpanded) Icons.Default.OpenInFull else Icons.Default.CloseFullscreen,
+                                contentDescription = "Toggle Expand",
+                                tint = IndigoSecondary
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = SlateSurface
+                )
+            )
+        },
         bottomBar = {
             NavigationBar(
                 containerColor = SlateSurface,
@@ -96,7 +125,8 @@ fun PlanCraftApp() {
                         onAddTask = { newTask ->
                             tasks = listOf(newTask) + tasks
                         },
-                        onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } }
+                        onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } },
+                        isExpanded = isCalendarExpanded
                     )
                 }
                 AppDestination.PROJECTS -> {
@@ -183,6 +213,9 @@ fun PlanCraftApp() {
                         onAddPhase = { newPhase -> phases = listOf(newPhase) + phases },
                         onAddMember = { newMember -> members = listOf(newMember) + members }
                     )
+                }
+                AppDestination.SETTINGS -> {
+                    SettingsScreen()
                 }
             }
         }

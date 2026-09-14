@@ -30,14 +30,18 @@ fun CalendarScreen(
     projects: List<Project>,
     onToggleTaskStatus: (String) -> Unit,
     onAddTask: (Task) -> Unit,
-    onUpdateTask: (Task) -> Unit = {}
+    onUpdateTask: (Task) -> Unit = {},
+    isExpanded: Boolean = false
 ) {
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var selectedDate by remember { mutableStateOf("2026-09-14") }
     var selectedProjectFilter by remember { mutableStateOf<String?>("All") }
     var showAddTaskDialog by remember { mutableStateOf(false) }
 
-    // Calendar dates for September 2026
+    if (isExpanded) {
+        YearView(tasks = tasks, onSelectDate = { selectedDate = it })
+    } else {
+        // Calendar dates for September 2026
     val calendarDays = listOf(
         "2026-09-11" to "Fri 11",
         "2026-09-12" to "Sat 12",
@@ -296,6 +300,9 @@ fun CalendarScreen(
         )
     }
 
+        )
+    }
+
     if (showAddTaskDialog) {
         AddTaskDialog(
             selectedDate = selectedDate,
@@ -306,6 +313,121 @@ fun CalendarScreen(
                 showAddTaskDialog = false
             }
         )
+    }
+
+    editingTask?.let { task ->
+        GenericEditDialog(
+            title = "Task",
+            fields = mapOf(
+                "title" to task.title, 
+                "description" to task.description,
+                "assignee" to task.assigneeName,
+                "date" to task.date,
+                "time" to (task.time ?: ""),
+                "hours" to task.durationHours.toString(),
+                "cost" to task.costImpact.toString(),
+                "milestone" to (task.milestone ?: "")
+            ),
+            onDismiss = { editingTask = null },
+            onSave = { updated ->
+                onUpdateTask(task.copy(
+                    title = updated["title"] ?: task.title,
+                    description = updated["description"] ?: task.description,
+                    assigneeName = updated["assignee"] ?: task.assigneeName,
+                    date = updated["date"] ?: task.date,
+                    time = updated["time"]?.ifBlank { null },
+                    durationHours = updated["hours"]?.toDoubleOrNull() ?: task.durationHours,
+                    costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact,
+                    milestone = updated["milestone"]?.ifBlank { null }
+                ))
+                editingTask = null
+            }
+        )
+    }
+}
+
+@Composable
+fun YearView(tasks: List<Task>, onSelectDate: (String) -> Unit) {
+    val months = listOf(
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        item {
+            Text(
+                text = "Annual Project Velocity",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Text(
+                text = "Status heatmap and delivery roadmap for 2026",
+                fontSize = 12.sp,
+                color = TextSecondary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        items(months.chunked(3)) { rowMonths ->
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                rowMonths.forEach { month ->
+                    MonthGrid(month = month, tasks = tasks, onSelectDate = onSelectDate, modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MonthGrid(month: String, tasks: List<Task>, onSelectDate: (String) -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = SlateCard,
+        border = androidx.compose.foundation.BorderStroke(1.dp, SlateBorder),
+        modifier = modifier
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Text(text = month, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = IndigoSecondary)
+            Spacer(modifier = Modifier.height(6.dp))
+            
+            // Simplified 5x7 grid for visualization
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                repeat(5) { rowIndex ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        repeat(7) { colIndex ->
+                            val day = rowIndex * 7 + colIndex + 1
+                            if (day <= 30) {
+                                // Mock date mapping
+                                val date = "2026-09-${day.toString().padStart(2, '0')}"
+                                val tasksOnDay = tasks.count { it.date == date }
+                                
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(
+                                            when {
+                                                tasksOnDay > 2 -> EmeraldSuccess
+                                                tasksOnDay > 0 -> IndigoPrimary
+                                                else -> SlateSurfaceVariant
+                                            }
+                                        )
+                                        .clickable { onSelectDate(date) }
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.size(10.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
