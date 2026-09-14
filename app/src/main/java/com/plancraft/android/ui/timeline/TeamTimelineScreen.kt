@@ -387,7 +387,6 @@ fun TeamTimelineScreen(
             onSave = { fields ->
                 val newPhase = ProjectTimelinePhase(
                     id = "phase-${System.currentTimeMillis()}",
-                    projectId = "none",
                     phaseName = fields["name"] ?: "",
                     startDate = "2026-09-01",
                     endDate = "2026-09-30",
@@ -417,7 +416,7 @@ fun TeamTimelineScreen(
                     activePeriod = "2026",
                     allocationPercentage = fields["allocation"]?.toIntOrNull() ?: 100,
                     hourlyRate = fields["rate"]?.toDoubleOrNull() ?: 0.0,
-                    contactEmail = null
+                    email = (fields["name"] ?: "user").replace(" ", ".").lowercase() + "@example.com"
                 )
                 onAddMember(newMem)
                 showAddMember = false

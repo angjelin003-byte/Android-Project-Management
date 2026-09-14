@@ -259,7 +259,7 @@ fun CalendarScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(filteredTasks, key = { it.id }) { task ->
-                        TaskCard(task = task, onToggle = { onToggleTaskStatus(task.id) })
+                        TaskCard(task = task, onToggle = { onToggleTaskStatus(task.id) }, onEdit = { editingTask = task })
                     }
                 }
             }

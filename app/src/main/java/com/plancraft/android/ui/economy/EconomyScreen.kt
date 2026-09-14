@@ -241,7 +241,7 @@ fun EconomyScreen(
                     amount = fields["amount"]?.toDoubleOrNull() ?: 0.0,
                     dueDate = "2026-10-01",
                     isPaid = false,
-                    category = "NEW",
+                    category = ExpenseCategory.MISCELLANEOUS,
                     recurringPeriod = null,
                     invoiceNumber = null
                 )
@@ -265,7 +265,8 @@ fun EconomyScreen(
                     amount = fields["amount"]?.toDoubleOrNull() ?: 0.0,
                     date = "2026-09-15",
                     status = fields["status"] ?: "Pending",
-                    source = IncomeSource.OTHER
+                    source = IncomeSource.CONSULTING_SERVICES,
+                    referenceCode = "REF-${System.currentTimeMillis()}"
                 )
                 onAddIncome(newIncome)
                 showAddIncome = false
@@ -281,13 +282,14 @@ fun EconomyScreen(
             onSave = { fields ->
                 val newExp = Expense(
                     id = "exp-${System.currentTimeMillis()}",
-                    category = ExpenseCategory.OTHER_EXPENSES,
+                    projectId = "none",
+                    projectName = "Unassigned",
+                    category = ExpenseCategory.MISCELLANEOUS,
                     amount = fields["amount"]?.toDoubleOrNull() ?: 0.0,
                     date = "2026-09-15",
                     description = fields["description"] ?: "",
                     loggedBy = "User",
-                    paymentMethod = "Card",
-                    receiptUrl = null
+                    paymentMethod = "Card"
                 )
                 onAddExpense(newExp)
                 showAddExpense = false
@@ -433,7 +435,13 @@ fun IncomesList(incomes: List<Income>, pendingTotal: Double, onEdit: (Income) ->
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = inc.projectName, fontSize = 11.sp, color = IndigoSecondary, fontWeight = FontWeight.SemiBold)
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = inc.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = inc.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconButton(onClick = { onEdit(inc) }, modifier = Modifier.size(20.dp)) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(12.dp))
+                                }
+                            }
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(text = "${inc.source.name.replace("_", " ")} • ${inc.date}", fontSize = 12.sp, color = TextMuted)
                         }
@@ -490,7 +498,13 @@ fun ExpensesList(expenses: List<Expense>, totalExpenses: Double, onEdit: (Expens
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = exp.category.name.replace("_", " & "), fontSize = 11.sp, color = CyanAccent)
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(text = exp.description, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = exp.description, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(onClick = { onEdit(exp) }, modifier = Modifier.size(20.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = TextSecondary, modifier = Modifier.size(12.dp))
+                            }
+                        }
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(text = "By ${exp.loggedBy} via ${exp.paymentMethod} • ${exp.date}", fontSize = 12.sp, color = TextMuted)
                     }

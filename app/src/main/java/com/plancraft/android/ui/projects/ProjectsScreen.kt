@@ -31,11 +31,13 @@ fun ProjectsScreen(
     onSelectProject: (String) -> Unit,
     onUpdateProject: (Project) -> Unit = {},
     onUpdateTask: (Task) -> Unit = {},
-    onAddProject: (Project) -> Unit = {}
+    onAddProject: (Project) -> Unit = {},
+    onAddTask: (Task) -> Unit = {}
 ) {
     var editingProject by remember { mutableStateOf<Project?>(null) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var showAddProject by remember { mutableStateOf(false) }
+    var showAddTask by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) } // 0 = Project Portfolios, 1 = Kanban Board
 
     Scaffold(
@@ -47,6 +49,14 @@ fun ProjectsScreen(
                     contentColor = Color.White
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Project")
+                }
+            } else if (selectedTab == 1) {
+                FloatingActionButton(
+                    onClick = { showAddTask = true },
+                    containerColor = IndigoPrimary,
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Task")
                 }
             }
         },
@@ -327,6 +337,35 @@ fun ProjectsScreen(
                 )
                 onAddProject(newProject)
                 showAddProject = false
+            }
+        )
+    }
+
+    if (showAddTask) {
+        GenericEditDialog(
+            title = "Add Task",
+            fields = mapOf("title" to "", "description" to ""),
+            onDismiss = { showAddTask = false },
+            onSave = { fields ->
+                val newTask = Task(
+                    id = "task-${System.currentTimeMillis()}",
+                    projectId = "none",
+                    projectName = "Unassigned",
+                    title = fields["title"] ?: "New Task",
+                    description = fields["description"] ?: "",
+                    date = "2026-09-01",
+                    time = "12:00 PM",
+                    durationHours = 1.0,
+                    status = TaskStatus.TODO,
+                    priority = TaskPriority.MEDIUM,
+                    assigneeId = "none",
+                    assigneeName = "Unassigned",
+                    costImpact = 0.0,
+                    milestone = null,
+                    isBillable = false
+                )
+                onAddTask(newTask)
+                showAddTask = false
             }
         )
     }

@@ -105,7 +105,8 @@ fun PlanCraftApp() {
                         onSelectProject = { /* Filter or navigate */ },
                         onUpdateProject = { updated -> projects = projects.map { if (it.id == updated.id) updated else it } },
                         onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } },
-                        onAddProject = { newProj -> projects = listOf(newProj) + projects }
+                        onAddProject = { newProj -> projects = listOf(newProj) + projects },
+                        onAddTask = { newTask -> tasks = listOf(newTask) + tasks }
                     )
                 }
                 AppDestination.ECONOMY -> {
