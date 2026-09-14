@@ -10,15 +10,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.plancraft.android.data.SampleData
-import com.plancraft.android.model.*
+import com.plancraft.android.model.Bill
+import com.plancraft.android.model.BudgetAllocation
+import com.plancraft.android.model.Expense
+import com.plancraft.android.model.ExpenseCategory
+import com.plancraft.android.model.Income
+import com.plancraft.android.model.Project
+import com.plancraft.android.model.ProjectTimelinePhase
+import com.plancraft.android.model.Task
+import com.plancraft.android.model.TeamMember
+import com.plancraft.android.model.User
+import com.plancraft.android.model.UserRole
 import com.plancraft.android.ui.calendar.CalendarScreen
 import com.plancraft.android.ui.economy.EconomyScreen
 import com.plancraft.android.ui.projects.ProjectsScreen
-import com.plancraft.android.ui.theme.*
+import com.plancraft.android.ui.theme.PlanCraftTheme
 import com.plancraft.android.ui.timeline.TeamTimelineScreen
 import com.plancraft.android.ui.components.GenericEditDialog
 import com.plancraft.android.ui.settings.SettingsScreen
 import com.plancraft.android.ui.user.UserScreen
+import com.plancraft.android.ui.theme.*
 
 enum class AppDestination(val title: String, val icon: ImageVector) {
     CALENDAR("Calendar", Icons.Default.CalendarMonth),

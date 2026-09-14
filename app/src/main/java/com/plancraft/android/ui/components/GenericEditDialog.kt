@@ -28,7 +28,7 @@ fun GenericEditDialog(
                     OutlinedTextField(
                         value = state[key] ?: "",
                         onValueChange = { newVal -> state = state.toMutableMap().apply { put(key, newVal) } },
-                        label = { Text(key.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }) },
+                        label = { Text(key.replaceFirstChar { it.uppercase() }) },
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                     )
                 }

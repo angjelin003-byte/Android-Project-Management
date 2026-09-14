@@ -37,7 +37,7 @@ object SampleData {
 
     val sampleTasks = listOf(
         Task(
-            id = UUID.randomUUID().toString(),
+            id = "task-1",
             projectId = "proj-1",
             projectName = "Project Phoenix",
             title = "Database Schema Design",
@@ -51,7 +51,7 @@ object SampleData {
             costImpact = 200.0
         ),
         Task(
-            id = UUID.randomUUID().toString(),
+            id = "task-2",
             projectId = "proj-1",
             projectName = "Project Phoenix",
             title = "API Documentation",
@@ -65,7 +65,7 @@ object SampleData {
             costImpact = 100.0
         ),
         Task(
-            id = UUID.randomUUID().toString(),
+            id = "task-3",
             projectId = "proj-2",
             projectName = "Mobile App Overhaul",
             title = "Initial Requirements Gathering",
