@@ -104,7 +104,8 @@ fun PlanCraftApp() {
                         tasks = tasks,
                         onSelectProject = { /* Filter or navigate */ },
                         onUpdateProject = { updated -> projects = projects.map { if (it.id == updated.id) updated else it } },
-                        onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } }
+                        onUpdateTask = { updated -> tasks = tasks.map { if (it.id == updated.id) updated else it } },
+                        onAddProject = { newProj -> projects = listOf(newProj) + projects }
                     )
                 }
                 AppDestination.ECONOMY -> {
@@ -123,7 +124,10 @@ fun PlanCraftApp() {
                         },
                         onUpdateBill = { updated -> bills = bills.map { if (it.id == updated.id) updated else it } },
                         onUpdateIncome = { updated -> incomes = incomes.map { if (it.id == updated.id) updated else it } },
-                        onUpdateExpense = { updated -> expenses = expenses.map { if (it.id == updated.id) updated else it } }
+                        onUpdateExpense = { updated -> expenses = expenses.map { if (it.id == updated.id) updated else it } },
+                        onAddBill = { newBill -> bills = listOf(newBill) + bills },
+                        onAddIncome = { newIncome -> incomes = listOf(newIncome) + incomes },
+                        onAddExpense = { newExpense -> expenses = listOf(newExpense) + expenses }
                     )
                 }
                 AppDestination.PEOPLE -> {
@@ -131,7 +135,9 @@ fun PlanCraftApp() {
                         phases = phases,
                         members = members,
                         onUpdatePhase = { updated -> phases = phases.map { if (it.id == updated.id) updated else it } },
-                        onUpdateMember = { updated -> members = members.map { if (it.id == updated.id) updated else it } }
+                        onUpdateMember = { updated -> members = members.map { if (it.id == updated.id) updated else it } },
+                        onAddPhase = { newPhase -> phases = listOf(newPhase) + phases },
+                        onAddMember = { newMember -> members = listOf(newMember) + members }
                     )
                 }
             }

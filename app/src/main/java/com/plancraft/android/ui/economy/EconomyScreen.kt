@@ -31,11 +31,17 @@ fun EconomyScreen(
     onToggleBillPaid: (String) -> Unit,
     onUpdateBill: (Bill) -> Unit = {},
     onUpdateIncome: (Income) -> Unit = {},
-    onUpdateExpense: (Expense) -> Unit = {}
+    onUpdateExpense: (Expense) -> Unit = {},
+    onAddBill: (Bill) -> Unit = {},
+    onAddIncome: (Income) -> Unit = {},
+    onAddExpense: (Expense) -> Unit = {}
 ) {
     var editingBill by remember { mutableStateOf<Bill?>(null) }
     var editingIncome by remember { mutableStateOf<Income?>(null) }
     var editingExpense by remember { mutableStateOf<Expense?>(null) }
+    var showAddBill by remember { mutableStateOf(false) }
+    var showAddIncome by remember { mutableStateOf(false) }
+    var showAddExpense by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) } // 0 = Bills, 1 = Income, 2 = Expenses, 3 = Category Budgets
 
     val totalIncome = incomes.filter { it.status == "Received" }.sumOf { it.amount }
@@ -44,10 +50,30 @@ fun EconomyScreen(
     val unpaidBills = bills.filter { !it.isPaid }.sumOf { it.amount }
     val netCashflow = totalIncome - totalExpenses
 
+    Scaffold(
+        floatingActionButton = {
+            if (selectedTab in 0..2) {
+                FloatingActionButton(
+                    onClick = {
+                        when (selectedTab) {
+                            0 -> showAddBill = true
+                            1 -> showAddIncome = true
+                            2 -> showAddExpense = true
+                        }
+                    },
+                    containerColor = IndigoPrimary,
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                }
+            }
+        },
+        containerColor = SlateBackground
+    ) { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SlateBackground)
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
         // Top Header
@@ -155,6 +181,7 @@ fun EconomyScreen(
             3 -> CategoryBudgetsView()
         }
     }
+    }
 
     editingBill?.let { bill ->
         GenericEditDialog(
@@ -197,6 +224,73 @@ fun EconomyScreen(
                     amount = updated["amount"]?.toDoubleOrNull() ?: exp.amount
                 ))
                 editingExpense = null
+            }
+        )
+    }
+
+    if (showAddBill) {
+        GenericEditDialog(
+            title = "Add Bill",
+            fields = mapOf("title" to "", "vendor" to "", "amount" to "0"),
+            onDismiss = { showAddBill = false },
+            onSave = { fields ->
+                val newBill = Bill(
+                    id = "bill-${System.currentTimeMillis()}",
+                    title = fields["title"] ?: "",
+                    vendor = fields["vendor"] ?: "",
+                    amount = fields["amount"]?.toDoubleOrNull() ?: 0.0,
+                    dueDate = "2026-10-01",
+                    isPaid = false,
+                    category = "NEW",
+                    recurringPeriod = null,
+                    invoiceNumber = null
+                )
+                onAddBill(newBill)
+                showAddBill = false
+            }
+        )
+    }
+
+    if (showAddIncome) {
+        GenericEditDialog(
+            title = "Add Income",
+            fields = mapOf("title" to "", "amount" to "0", "status" to "Pending"),
+            onDismiss = { showAddIncome = false },
+            onSave = { fields ->
+                val newIncome = Income(
+                    id = "inc-${System.currentTimeMillis()}",
+                    projectId = "none",
+                    projectName = "New Income",
+                    title = fields["title"] ?: "",
+                    amount = fields["amount"]?.toDoubleOrNull() ?: 0.0,
+                    date = "2026-09-15",
+                    status = fields["status"] ?: "Pending",
+                    source = IncomeSource.OTHER
+                )
+                onAddIncome(newIncome)
+                showAddIncome = false
+            }
+        )
+    }
+
+    if (showAddExpense) {
+        GenericEditDialog(
+            title = "Add Expense",
+            fields = mapOf("description" to "", "amount" to "0"),
+            onDismiss = { showAddExpense = false },
+            onSave = { fields ->
+                val newExp = Expense(
+                    id = "exp-${System.currentTimeMillis()}",
+                    category = ExpenseCategory.OTHER_EXPENSES,
+                    amount = fields["amount"]?.toDoubleOrNull() ?: 0.0,
+                    date = "2026-09-15",
+                    description = fields["description"] ?: "",
+                    loggedBy = "User",
+                    paymentMethod = "Card",
+                    receiptUrl = null
+                )
+                onAddExpense(newExp)
+                showAddExpense = false
             }
         )
     }

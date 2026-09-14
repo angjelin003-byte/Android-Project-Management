@@ -28,10 +28,14 @@ fun TeamTimelineScreen(
     phases: List<ProjectTimelinePhase>,
     members: List<TeamMember>,
     onUpdatePhase: (ProjectTimelinePhase) -> Unit = {},
-    onUpdateMember: (TeamMember) -> Unit = {}
+    onUpdateMember: (TeamMember) -> Unit = {},
+    onAddPhase: (ProjectTimelinePhase) -> Unit = {},
+    onAddMember: (TeamMember) -> Unit = {}
 ) {
     var editingPhase by remember { mutableStateOf<ProjectTimelinePhase?>(null) }
     var editingMember by remember { mutableStateOf<TeamMember?>(null) }
+    var showAddPhase by remember { mutableStateOf(false) }
+    var showAddMember by remember { mutableStateOf(false) }
     var selectedGroupFilter by remember { mutableStateOf<StakeholderGroupType?>(null) }
     var viewMode by remember { mutableStateOf(0) } // 0 = Phases Over Time, 1 = People & Groups
 
@@ -41,10 +45,25 @@ fun TeamTimelineScreen(
         members
     }
 
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (viewMode == 0) showAddPhase = true
+                    else showAddMember = true
+                },
+                containerColor = IndigoPrimary,
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+        },
+        containerColor = SlateBackground
+    ) { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SlateBackground)
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
         // Top Header
@@ -326,6 +345,7 @@ fun TeamTimelineScreen(
             }
         }
     }
+    }
 
     editingPhase?.let { phase ->
         GenericEditDialog(
@@ -345,15 +365,62 @@ fun TeamTimelineScreen(
     editingMember?.let { member ->
         GenericEditDialog(
             title = "Team Member",
-            fields = mapOf("name" to member.name, "role" to member.role, "rate" to member.hourlyRate.toString()),
+            fields = mapOf("name" to member.name, "role" to member.role, "rate" to member.hourlyRate.toString(), "allocation" to member.allocationPercentage.toString()),
             onDismiss = { editingMember = null },
             onSave = { updated ->
                 onUpdateMember(member.copy(
                     name = updated["name"] ?: member.name,
                     role = updated["role"] ?: member.role,
-                    hourlyRate = updated["rate"]?.toDoubleOrNull() ?: member.hourlyRate
+                    hourlyRate = updated["rate"]?.toDoubleOrNull() ?: member.hourlyRate,
+                    allocationPercentage = updated["allocation"]?.toIntOrNull() ?: member.allocationPercentage
                 ))
                 editingMember = null
+            }
+        )
+    }
+
+    if (showAddPhase) {
+        GenericEditDialog(
+            title = "Add Phase",
+            fields = mapOf("name" to "", "budget" to "0", "quarter" to "Q1"),
+            onDismiss = { showAddPhase = false },
+            onSave = { fields ->
+                val newPhase = ProjectTimelinePhase(
+                    id = "phase-${System.currentTimeMillis()}",
+                    projectId = "none",
+                    phaseName = fields["name"] ?: "",
+                    startDate = "2026-09-01",
+                    endDate = "2026-09-30",
+                    progress = 0,
+                    involvedGroups = listOf(StakeholderGroupType.CORE_ENGINEERING),
+                    headCount = 1,
+                    estimatedBudget = fields["budget"]?.toDoubleOrNull() ?: 0.0,
+                    quarter = fields["quarter"] ?: "Q1"
+                )
+                onAddPhase(newPhase)
+                showAddPhase = false
+            }
+        )
+    }
+
+    if (showAddMember) {
+        GenericEditDialog(
+            title = "Add Member",
+            fields = mapOf("name" to "", "role" to "", "rate" to "0", "allocation" to "100"),
+            onDismiss = { showAddMember = false },
+            onSave = { fields ->
+                val newMem = TeamMember(
+                    id = "mem-${System.currentTimeMillis()}",
+                    name = fields["name"] ?: "",
+                    role = fields["role"] ?: "",
+                    group = StakeholderGroupType.CORE_ENGINEERING,
+                    activePeriod = "2026",
+                    allocationPercentage = fields["allocation"]?.toIntOrNull() ?: 100,
+                    hourlyRate = fields["rate"]?.toDoubleOrNull() ?: 0.0,
+                    contactEmail = null
+                )
+                onAddMember(newMem)
+                showAddMember = false
             }
         )
     }

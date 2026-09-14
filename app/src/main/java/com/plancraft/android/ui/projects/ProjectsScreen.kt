@@ -30,16 +30,32 @@ fun ProjectsScreen(
     tasks: List<Task>,
     onSelectProject: (String) -> Unit,
     onUpdateProject: (Project) -> Unit = {},
-    onUpdateTask: (Task) -> Unit = {}
+    onUpdateTask: (Task) -> Unit = {},
+    onAddProject: (Project) -> Unit = {}
 ) {
     var editingProject by remember { mutableStateOf<Project?>(null) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
+    var showAddProject by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) } // 0 = Project Portfolios, 1 = Kanban Board
 
+    Scaffold(
+        floatingActionButton = {
+            if (selectedTab == 0) {
+                FloatingActionButton(
+                    onClick = { showAddProject = true },
+                    containerColor = IndigoPrimary,
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Project")
+                }
+            }
+        },
+        containerColor = SlateBackground
+    ) { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SlateBackground)
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
         // Top Header
@@ -255,6 +271,7 @@ fun ProjectsScreen(
             KanbanView(tasks = tasks, onEditTask = { editingTask = it })
         }
     }
+    }
 
     editingProject?.let { proj ->
         GenericEditDialog(
@@ -275,11 +292,41 @@ fun ProjectsScreen(
     editingTask?.let { task ->
         GenericEditDialog(
             title = "Task",
-            fields = mapOf("title" to task.title),
+            fields = mapOf("title" to task.title, "description" to task.description),
             onDismiss = { editingTask = null },
             onSave = { updated ->
-                onUpdateTask(task.copy(title = updated["title"] ?: task.title))
+                onUpdateTask(task.copy(
+                    title = updated["title"] ?: task.title,
+                    description = updated["description"] ?: task.description
+                ))
                 editingTask = null
+            }
+        )
+    }
+
+    if (showAddProject) {
+        GenericEditDialog(
+            title = "Add Project",
+            fields = mapOf("name" to "", "client" to "", "budget" to "0", "description" to ""),
+            onDismiss = { showAddProject = false },
+            onSave = { fields ->
+                val newProject = Project(
+                    id = "proj-${System.currentTimeMillis()}",
+                    name = fields["name"] ?: "New Project",
+                    client = fields["client"] ?: "",
+                    description = fields["description"] ?: "",
+                    status = ProjectStatus.PLANNING,
+                    priority = ProjectPriority.MEDIUM,
+                    startDate = "2026-09-01",
+                    targetEndDate = "2026-12-31",
+                    totalBudget = fields["budget"]?.toDoubleOrNull() ?: 0.0,
+                    totalSpent = 0.0,
+                    leadManager = "Unassigned",
+                    completionPercentage = 0,
+                    tags = listOf()
+                )
+                onAddProject(newProject)
+                showAddProject = false
             }
         )
     }

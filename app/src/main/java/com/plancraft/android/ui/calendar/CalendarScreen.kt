@@ -445,6 +445,7 @@ fun AddTaskDialog(
     var priority by remember { mutableStateOf(TaskPriority.MEDIUM) }
     var hours by remember { mutableStateOf("3.0") }
     var cost by remember { mutableStateOf("450") }
+    var assigneeName by remember { mutableStateOf("Unassigned") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -461,6 +462,12 @@ fun AddTaskDialog(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = assigneeName,
+                    onValueChange = { assigneeName = it },
+                    label = { Text("Assignee Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -495,8 +502,8 @@ fun AddTaskDialog(
                             durationHours = hours.toDoubleOrNull() ?: 2.0,
                             status = TaskStatus.TODO,
                             priority = priority,
-                            assigneeId = "user-1",
-                            assigneeName = "Kaelen Voss",
+                            assigneeId = "user-new",
+                            assigneeName = assigneeName,
                             costImpact = cost.toDoubleOrNull() ?: 0.0,
                             isBillable = true
                         )
