@@ -300,9 +300,6 @@ fun CalendarScreen(
         )
     }
 
-        )
-    }
-
     if (showAddTaskDialog) {
         AddTaskDialog(
             selectedDate = selectedDate,
@@ -311,36 +308,6 @@ fun CalendarScreen(
             onSave = { newTask ->
                 onAddTask(newTask)
                 showAddTaskDialog = false
-            }
-        )
-    }
-
-    editingTask?.let { task ->
-        GenericEditDialog(
-            title = "Task",
-            fields = mapOf(
-                "title" to task.title, 
-                "description" to task.description,
-                "assignee" to task.assigneeName,
-                "date" to task.date,
-                "time" to (task.time ?: ""),
-                "hours" to task.durationHours.toString(),
-                "cost" to task.costImpact.toString(),
-                "milestone" to (task.milestone ?: "")
-            ),
-            onDismiss = { editingTask = null },
-            onSave = { updated ->
-                onUpdateTask(task.copy(
-                    title = updated["title"] ?: task.title,
-                    description = updated["description"] ?: task.description,
-                    assigneeName = updated["assignee"] ?: task.assigneeName,
-                    date = updated["date"] ?: task.date,
-                    time = updated["time"]?.ifBlank { null },
-                    durationHours = updated["hours"]?.toDoubleOrNull() ?: task.durationHours,
-                    costImpact = updated["cost"]?.toDoubleOrNull() ?: task.costImpact,
-                    milestone = updated["milestone"]?.ifBlank { null }
-                ))
-                editingTask = null
             }
         )
     }

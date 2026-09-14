@@ -8,12 +8,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import com.plancraft.android.data.SampleData
 import com.plancraft.android.model.*
 import com.plancraft.android.ui.calendar.CalendarScreen
 import com.plancraft.android.ui.economy.EconomyScreen
 import com.plancraft.android.ui.projects.ProjectsScreen
 import com.plancraft.android.ui.theme.IndigoPrimary
+import com.plancraft.android.ui.theme.IndigoSecondary
 import com.plancraft.android.ui.theme.SlateSurface
 import com.plancraft.android.ui.theme.SlateSurfaceVariant
 import com.plancraft.android.ui.theme.TextSecondary
