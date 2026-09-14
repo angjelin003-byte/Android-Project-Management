@@ -55,7 +55,7 @@ data class Expense(
 )
 
 data class BudgetAllocation(
-    val category: ExpenseCategory,
-    val allocatedAmount: Double,
-    val spentAmount: Double
+    val category: ExpenseCategory = ExpenseCategory.MISCELLANEOUS,
+    val allocatedAmount: Double = 0.0,
+    val spentAmount: Double = 0.0
 )

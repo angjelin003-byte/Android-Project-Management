@@ -32,4 +32,33 @@ class ExampleUnitTest {
         assertEquals(1000.0, project.totalBudget, 0.1)
         assertEquals(ProjectStatus.PLANNING, project.status)
     }
+
+    @Test
+    fun finance_models_initialization_isCorrect() {
+        val bill = Bill(title = "Rent", amount = 1200.0)
+        assertEquals("Rent", bill.title)
+        assertEquals(1200.0, bill.amount, 0.1)
+        assertFalse(bill.isPaid)
+
+        val income = Income(title = "Invoice #1", amount = 5000.0)
+        assertEquals(5000.0, income.amount, 0.1)
+        assertEquals("Pending", income.status)
+
+        val budget = BudgetAllocation(category = ExpenseCategory.SALARIES_CONTRACTORS, allocatedAmount = 10000.0)
+        assertEquals(10000.0, budget.allocatedAmount, 0.1)
+        assertEquals(0.0, budget.spentAmount, 0.1)
+    }
+
+    @Test
+    fun stakeholder_models_initialization_isCorrect() {
+        val member = TeamMember(name = "Alice", role = "Lead Dev")
+        assertEquals("Alice", member.name)
+        assertEquals("Lead Dev", member.role)
+        assertEquals(0.0, member.hourlyRate, 0.1)
+
+        val phase = ProjectTimelinePhase(phaseName = "Beta", progress = 45)
+        assertEquals("Beta", phase.phaseName)
+        assertEquals(45, phase.progress)
+        assertTrue(phase.involvedGroups.isEmpty())
+    }
 }
