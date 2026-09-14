@@ -38,8 +38,8 @@ fun PlanCraftApp() {
     var bills by remember { mutableStateOf(SampleData.sampleBills) }
     var incomes by remember { mutableStateOf(SampleData.sampleIncomes) }
     var expenses by remember { mutableStateOf(SampleData.sampleExpenses) }
-    val phases by remember { mutableStateOf(SampleData.sampleTimelinePhases) }
-    val members by remember { mutableStateOf(SampleData.sampleTeamMembers) }
+    var phases by remember { mutableStateOf(SampleData.sampleTimelinePhases) }
+    var members by remember { mutableStateOf(SampleData.sampleTeamMembers) }
 
     Scaffold(
         bottomBar = {
